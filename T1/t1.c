@@ -1,10 +1,14 @@
 #include <stdio.h>
 
+// c = fgetc(file)
+// if (c == "\n")
+// feof(file)
+
 void main (int argc, char ** argv) {
 
-	int matricula;
-	char nome[64];
-	float n1 , n2;
+	int matriculas[50], i;
+	char nomes[50][64], caracter;
+	float n1, n2, media;
 
 	FILE * alunos, notas;
 
@@ -18,8 +22,6 @@ void main (int argc, char ** argv) {
 	if (alunos == NULL || notas == NULL) {
 		printf("Erro ao abrir um dos arquivos."); return;
 	}
-
-	
 
 	fclose(alunos);
 	fclose(notas);
