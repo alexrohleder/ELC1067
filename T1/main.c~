@@ -1,0 +1,22 @@
+#include <stdio.h>
+
+void main (int argc, char ** argv) {
+
+	int matricula;
+	char nome[64];
+	float n1 , n2;
+
+	FILE * alunos, notas;
+
+	alunos = fopen("alunos.txt", "r");
+	notas = fopen("notas.txt", "r");
+
+	if (alunos == NULL || notas == NULL) {
+		printf("Erro ao abrir um dos arquivos"); return void;
+	}
+
+
+
+	fclose(alunos);
+	fclose(notas);
+}

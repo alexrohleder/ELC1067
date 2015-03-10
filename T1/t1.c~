@@ -1,0 +1,26 @@
+#include <stdio.h>
+
+void main (int argc, char ** argv) {
+
+	int matricula;
+	char nome[64];
+	float n1 , n2;
+
+	FILE * alunos, notas;
+
+	if (argc > 1) {
+		return printf("Você deve definir um nome de aluno como parâmetro.");
+	}
+
+	alunos = fopen("alunos.txt", "r");
+	notas = fopen("notas.txt", "r");
+
+	if (alunos == NULL || notas == NULL) {
+		return printf("Erro ao abrir um dos arquivos.");
+	}
+
+	
+
+	fclose(alunos);
+	fclose(notas);
+}
