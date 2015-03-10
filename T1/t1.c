@@ -4,25 +4,41 @@
 // if (c == "\n")
 // feof(file)
 
+void ler_alunos(int * matriculas, char ** nome, int * n) {
+	int matricula, i = 0, j = 0;
+	char caracter, nome[50];
+
+	FILE * resource = fopen("alunos.txt", "r");
+
+	if (resource == NULL) {
+		printf("Erro ao abrir um dos arquivos."); return;
+	}
+
+	while (feof(resource) != 0) {
+		fscanf(resource, "%d", &matricula);
+		caracter = fgetc(resource);
+
+		while (caracter != "\n") {
+			nome[i] = caracter;
+			caracter = fgetc(resource);
+			/**/ i++;
+		}
+
+		nome[i] = "\n";
+		matriculas[j] = matricula;
+		strcpy(nomes[j], nome);
+		/**/ j++;
+	}
+}
+
 void main (int argc, char ** argv) {
 
 	int matriculas[50], i;
 	char nomes[50][64], caracter;
 	float n1, n2, media;
 
-	FILE * alunos, notas;
-
 	if (argc > 1) {
 		printf("Você deve definir um nome de aluno como parâmetro."); return;
 	}
 
-	alunos = fopen("alunos.txt", "r");
-	notas = fopen("notas.txt", "r");
-
-	if (alunos == NULL || notas == NULL) {
-		printf("Erro ao abrir um dos arquivos."); return;
-	}
-
-	fclose(alunos);
-	fclose(notas);
 }
