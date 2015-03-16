@@ -37,6 +37,8 @@ void main(int argc, char ** argv) {
 		i++;
 	}
 
+	fclose(falunos);
+
 	i = j = 0;
 
 	while (!feof(fnotas) != 0) {
@@ -47,9 +49,14 @@ void main(int argc, char ** argv) {
 		i++;
 	}
 
-	for (j = 0; j < i; j++) {
-		if (strstr(nomes[j], argv[1]) != NULL) {
-			printf("%.2f %s\n", (notas[j][0] + notas[j][1]) / 2, nomes[j]);
+	fclose(fnotas);
+
+	k = i;
+	i = j = 0;
+
+	for (; i < k; i++) {
+		if (strstr(nomes[i], argv[1]) != NULL) {
+			printf("%.2f %s\n", (notas[i][0] + notas[i][1]) / 2, nomes[i]);
 		}
 	}
 }
