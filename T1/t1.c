@@ -33,6 +33,7 @@ void main(int argc, char ** argv) {
 		}
 
 		nomes[i][j] = '\0';
+		j = 0;
 		i++;
 	}
 
@@ -47,9 +48,7 @@ void main(int argc, char ** argv) {
 	}
 
 	for (j = 0; j < i; j++) {
-		if (strstr(argv[1], nomes[j]) == NULL) {
-			printf("%.2f %s\n", (notas[j][0] + notas[j][1]) / 2, nomes[j]);
-		}
+		printf("%d %s %f %f\n", matriculas[j], nomes[j], notas[j][0], notas[j][1]);
 	}
 }
 
