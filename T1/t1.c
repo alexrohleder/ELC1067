@@ -1,44 +1,38 @@
 #include <stdio.h>
+#include <string.h>
 
-// c = fgetc(file)
-// if (c == "\n")
-// feof(file)
+void main(int argc, char ** argv) {
+	int i, j, matriculas[50];
+	char c, nome[50][255];
+	float notas[2], media;
 
-void ler_alunos(int * matriculas, char ** nome, int * n) {
-	int matricula, i = 0, j = 0;
-	char caracter, nome[50];
-
-	FILE * resource = fopen("alunos.txt", "r");
-
-	if (resource == NULL) {
-		printf("Erro ao abrir um dos arquivos."); return;
+	if (argc < 2) {
+		printf("Você deve definir qual nome será buscado."); return;
 	}
 
-	while (feof(resource) != 0) {
-		fscanf(resource, "%d", &matricula);
-		caracter = fgetc(resource);
+	FILE * alunos = fopen("alunos.txt", "r");
+	FILE * notas  = fopen("notas.txt", "r");
 
-		while (caracter != "\n") {
-			nome[i] = caracter;
-			caracter = fgetc(resource);
-			/**/ i++;
+	if (alunos == NULL || notas == NULL) {
+		printf("Erro ao abrir os arquivos necessários."); return;
+	}
+
+	i = j = 0;
+
+	while (!feof(alunos) != 0) {
+		if (fscanf(alunos, "%d", &matriculas[i])) {
+			break;
 		}
 
-		nome[i] = "\n";
-		matriculas[j] = matricula;
-		strcpy(nomes[j], nome);
-		/**/ j++;
+		c = fgetc(alunos);
+
+		while (c != "\n") {
+			nome[i][j] = c;
+			c = fgetc(alunos);
+			j++;
+		}
+
+		
 	}
 }
 
-void main (int argc, char ** argv) {
-
-	int matriculas[50], i;
-	char nomes[50][64], caracter;
-	float n1, n2, media;
-
-	if (argc > 1) {
-		printf("Você deve definir um nome de aluno como parâmetro."); return;
-	}
-
-}

@@ -15,13 +15,16 @@ void ler_alunos(int * matriculas, char ** nome, int * n) {
 	}
 
 	while (feof(resource) != 0) {
-		fscanf(resource, "%d", &matricula);
+		if (fscanf(resource, "%d", &matricula)) {
+			break;
+		}
+
 		caracter = fgetc(resource);
 
 		while (caracter != "\n") {
 			nome[i] = caracter;
 			caracter = fgetc(resource);
-			i++;
+			/**/ i++;
 		}
 
 		nome[i] = "\n";
@@ -29,6 +32,9 @@ void ler_alunos(int * matriculas, char ** nome, int * n) {
 		strcpy(nomes[j], nome);
 		/**/ j++;
 	}
+
+	fclose(resource);
+	n = linha;
 }
 
 void main (int argc, char ** argv) {
