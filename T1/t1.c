@@ -48,7 +48,7 @@ void main(int argc, char ** argv) {
 	}
 
 	for (j = 0; j < i; j++) {
-		if (strstr(nomes[j], argv[1]) != NULL) {
+		if (strcasestr(nomes[j], argv[1]) != NULL) {
 			printf("%.2f %s\n", (notas[j][0] + notas[j][1]) / 2, nomes[j]);
 		}
 	}
