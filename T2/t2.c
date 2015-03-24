@@ -76,10 +76,14 @@ void main(int argc, char ** argv) {
 	ler_alunos(matriculas, nomes);
 	ler_notas(matriculas, n1, n2);
 
-	for (; i < k; i++) {
+	for (i = 0; i < 50; i++) {
 		if (strstr(nomes[i], argv[1]) != NULL) {
 			printf("%.2f %s\n", (n1[i] + n2[i]) / 2, nomes[i]);
 		}
 	}
+
+	free(matriculas);
+	for (i = 0; i < 50; i++) free(nomes[i]);
+	free(nomes);
 }
 
