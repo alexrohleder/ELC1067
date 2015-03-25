@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIZE 50;
-
 void ler_alunos(int* matriculas, char** nomes) {
 	int i, j;
 	char c;
@@ -14,12 +12,14 @@ void ler_alunos(int* matriculas, char** nomes) {
 		printf("Erro ao abrir os arquivos necessários.\n"); return;
 	}
 
-	while (!feof(resource)) {
+	i = j = 0;
+
+	while (!feof(resource) != 0) {
 		if (fscanf(resource, "%d", &matriculas[i]) <= 0) {
 			break;
 		}
 
-		nomes[i] = (char *) malloc(SIZE * sizeof(char));
+		nomes[i] = (char *) malloc(50 * sizeof(char));
 		c = fgetc(resource);
 
 		while (c != '\n') {
@@ -38,19 +38,19 @@ void ler_alunos(int* matriculas, char** nomes) {
 
 void ler_notas(int *matriculas, float *n1, float *n2) {
 	int i, matricula;
-	
+
 	FILE *resource = fopen("notas.txt", "r");
 
 	if (resource == NULL) {
 		printf("Erro ao abrir os arquivos necessários.\n"); return;
 	}
 
-	while (!feof(resource)) {
+	while (!feof(resource) != 0) {
 		if (fscanf(resource, "%d", &matricula) <= 0) {
 			break;
 		}
-		
-		for (i = 0; i < SIZE; i++) { printf("%d\n", i);
+
+		for (i = 0; i < 50; i++) {
 			if (matriculas[i] == matricula) {
 				break;
 			}
@@ -72,20 +72,24 @@ void main(int argc, char ** argv) {
 		printf("Você deve definir qual nome será buscado.\n"); return;
 	}
 
-	matriculas = (int *) malloc(SIZE * sizeof(int));
-	nomes = (char **) malloc(SIZE * sizeof(char *));
+	matriculas = (int *) malloc(50 * sizeof(int));
+	nomes = (char **) malloc(50 * sizeof(char *));
+	n1 = (float *) malloc(50 * sizeof(float));
+	n2 = (float *) malloc(50 * sizeof(float));
 
 	ler_alunos(matriculas, nomes);
 	ler_notas(matriculas, n1, n2);
 
-	for (i = 0; i < SIZE; i++) {
+	for (i = 0; i < 50; i++) {
 		if (strstr(nomes[i], argv[1]) != NULL) {
 			printf("%.2f %s\n", (n1[i] + n2[i]) / 2, nomes[i]);
 		}
 	}
 
 	free(matriculas);
-	for (i = 0; i < SIZE; i++) free(nomes[i]);
+	for (i = 0; i < 50; i++) free(nomes[i]);
 	free(nomes);
+	free(n1);
+	free(n2);
 }
 
