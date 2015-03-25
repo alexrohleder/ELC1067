@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+const int MAX_REG_SIZE = 50;
+const int STRING_SIZE = 256;
+
 void ler_alunos(int* matriculas, char** nomes) {
 	int i, j;
 	char c;
@@ -14,12 +17,12 @@ void ler_alunos(int* matriculas, char** nomes) {
 
 	i = j = 0;
 
-	while (!feof(resource) != 0) {
+	while (!feof(resource)) {
 		if (fscanf(resource, "%d", &matriculas[i]) <= 0) {
 			break;
 		}
 
-		nomes[i] = (char *) malloc(50 * sizeof(char));
+		nomes[i] = (char *) malloc(STRING_SIZE * sizeof(char));
 		c = fgetc(resource);
 
 		while (c != '\n') {
@@ -50,7 +53,7 @@ void ler_notas(int *matriculas, float *n1, float *n2) {
 			break;
 		}
 
-		for (i = 0; i < 50; i++) {
+		for (i = 0; i < MAX_REG_SIZE; i++) {
 			if (matriculas[i] == matricula) {
 				break;
 			}
@@ -72,22 +75,22 @@ void main(int argc, char ** argv) {
 		printf("Você deve definir qual nome será buscado.\n"); return;
 	}
 
-	matriculas = (int *) malloc(50 * sizeof(int));
-	nomes = (char **) malloc(50 * sizeof(char *));
-	n1 = (float *) malloc(50 * sizeof(float));
-	n2 = (float *) malloc(50 * sizeof(float));
+	matriculas = (int*) malloc(MAX_REG_SIZE * sizeof(int));
+	nomes = (char**) malloc(MAX_REG_SIZE * sizeof(char*));
+	n1 = (float*) malloc(MAX_REG_SIZE * sizeof(float));
+	n2 = (float*) malloc(MAX_REG_SIZE * sizeof(float));
 
 	ler_alunos(matriculas, nomes);
 	ler_notas(matriculas, n1, n2);
 
-	for (i = 0; i < 50; i++) {
+	for (i = 0; i < MAX_REG_SIZE; i++) {
 		if (strstr(nomes[i], argv[1]) != NULL) {
 			printf("%.2f %s\n", (n1[i] + n2[i]) / 2, nomes[i]);
 		}
 	}
 
 	free(matriculas);
-	for (i = 0; i < 50; i++) free(nomes[i]);
+	for (i = 0; i < MAX_REG_SIZE; i++) free(nomes[i]);
 	free(nomes);
 	free(n1);
 	free(n2);
