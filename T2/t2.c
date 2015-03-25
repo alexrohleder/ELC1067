@@ -89,10 +89,7 @@ void main(int argc, char ** argv) {
 		}
 	}
 
-	free(matriculas);
 	for (i = 0; i < MAX_REG_SIZE; i++) free(nomes[i]);
-	free(nomes);
-	free(n1);
-	free(n2);
+	free(nomes);free(matriculas);free(n1);free(n2);
 }
 
