@@ -44,9 +44,7 @@ vetor_t* vetor_cria(void)
 	int i;
 	struct vetor* vet = (struct vetor*) memo_aloca(sizeof(struct vetor));
 	  	    	  vet->n = 0;
-	for (i = 0; i < 53; i++) {
-		vet->baralho[i] = (struct carta) memo_aloca(sizeof(carta));
-	}
+	vet->baralho = (carta*) memo_aloca(52 * sizeof(carta));
 	return vet;
 }
 
@@ -71,7 +69,7 @@ void vetor_insere_carta(vetor_t *vet, int indice, carta c)
 	int i;
 
 	if (indice > 52) {
-		return NULL;
+		return;
 	}
 
 	if (vet->baralho[indice] == NULL) {
@@ -103,7 +101,7 @@ carta vetor_remove_carta(vetor_t *vet, int indice)
 
 	for (i = indice; i < 53; i++) {
 		if (i == 52) {
-			   vet->baralho[i] = NULL;
+		       vet->baralho[i] = NULL;
 		} else vet->baralho[i] = vet->baralho[i + 1];
 	}
 
@@ -128,7 +126,7 @@ bool vetor_valido(vetor_t *vet)
 		return false;
 	}
 
-	for (int i = 0; i < vet->n; i++) {
+	for (i = 0; i < vet->n; i++) {
 		if (vet->baralho[i] == NULL) {
 			return false;
 		}
