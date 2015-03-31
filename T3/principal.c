@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 			i, carta_valor_str(c), carta_naipe_str(c), vetor_numelem(baralho));
 		carta_destroi(c);
 	}
-printf("chegou aqui \n\n");
+
 	vetor_destroi( baralho );
 
 	/* relatório de memória */

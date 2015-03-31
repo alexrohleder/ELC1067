@@ -56,9 +56,9 @@ void vetor_destroi(vetor_t* vet)
 {
 	int i;
 
-	for (i = 0; i < vet->m; i++) {
-		memo_libera(vet->baralho[i]);
-	}
+	//for (i = 0; i < vet->m; i++) {
+		memo_libera(vet->baralho);
+	//}
 	
 	memo_libera(vet);	
 }
@@ -79,11 +79,7 @@ void vetor_insere_carta(vetor_t *vet, int indice, carta c)
 	if (vet->baralho[indice] == NULL) {
 		vet->baralho[indice] = c;
 	} else {
-		for (i = indice; i < vet->m; i++) {
-			if (i == vet->m) {
-				break;
-			}
-
+		for (i = vet->n - 1; i >= indice; i--) {
 			vet->baralho[i + 1] = vet->baralho[i];
 		}
 
@@ -103,13 +99,12 @@ carta vetor_remove_carta(vetor_t *vet, int indice)
 
 	c = vet->baralho[indice];
 
-	for (i = indice; i < vet->m; i++) {
-		if (i == vet->m || vet->baralho[i] == NULL) {
-		       vet->baralho[i] = NULL;
-		} else vet->baralho[i] = vet->baralho[i + 1];
+	for (i = indice; i < vet->n - 1; i++) {
+		vet->baralho[i] = vet->baralho[i + 1];
 	}
 
 	vet->n--;
+	vet->baralho[vet->n] = NULL;
 	return c;
 }
 
