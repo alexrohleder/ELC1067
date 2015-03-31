@@ -85,9 +85,10 @@ int main(int argc, char** argv)
 			exit(-1);
 		}
 		printf("carta remove %d valor '%s' naipe '%s' (baralho com %d cartas)\n",
-			i, carta_valor_str(c), carta_naipe_str(c), vetor_numelem(baralho) );
+			i, carta_valor_str(c), carta_naipe_str(c), vetor_numelem(baralho));
 		carta_destroi(c);
 	}
+printf("chegou aqui \n\n");
 	vetor_destroi( baralho );
 
 	/* relatório de memória */

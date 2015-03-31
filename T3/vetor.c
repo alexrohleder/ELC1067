@@ -35,16 +35,20 @@
 #include "memo.h"
 
 struct vetor {
-	carta* baralho;   /* baralho - vetor de cartas */
-	int n;		/* número de cartas */
+	carta* baralho; /* baralho - vetor de cartas */
+	int n; /* número de cartas existentes */
+	int m; /* número de cartas alocadas */
 };
 
 vetor_t* vetor_cria(void)
 {
 	int i;
+
 	struct vetor* vet = (struct vetor*) memo_aloca(sizeof(struct vetor));
-	  	    	  vet->n = 0;
-	vet->baralho = (carta*) memo_aloca(52 * sizeof(carta));
+	  	      vet->n = 0;
+		      vet->m = 52;
+	vet->baralho = (carta*) memo_aloca(vet->m * sizeof(carta));
+
 	return vet;
 }
 
@@ -52,10 +56,10 @@ void vetor_destroi(vetor_t* vet)
 {
 	int i;
 
-	for (i = 0; i < 53; i++) {
+	for (i = 0; i < vet->m; i++) {
 		memo_libera(vet->baralho[i]);
 	}
-
+	
 	memo_libera(vet);	
 }
 
@@ -68,15 +72,15 @@ void vetor_insere_carta(vetor_t *vet, int indice, carta c)
 {
 	int i;
 
-	if (indice > 52) {
-		return;
+	if (indice > vet->m) {
+		memo_realoca(vet->baralho, vet->m++);
 	}
 
 	if (vet->baralho[indice] == NULL) {
 		vet->baralho[indice] = c;
 	} else {
-		for (i = indice; i < 53; i++) {
-			if (i == 52) {
+		for (i = indice; i < vet->m; i++) {
+			if (i == vet->m) {
 				break;
 			}
 
@@ -93,14 +97,14 @@ carta vetor_remove_carta(vetor_t *vet, int indice)
 {
 	int i; carta c;
 
-	if (indice > 52) {
+	if (indice > vet->m) {
 		return NULL;
 	}
 
 	c = vet->baralho[indice];
 
-	for (i = indice; i < 53; i++) {
-		if (i == 52) {
+	for (i = indice; i < vet->m; i++) {
+		if (i == vet->m || vet->baralho[i] == NULL) {
 		       vet->baralho[i] = NULL;
 		} else vet->baralho[i] = vet->baralho[i + 1];
 	}
@@ -111,7 +115,7 @@ carta vetor_remove_carta(vetor_t *vet, int indice)
 
 carta vetor_acessa_carta(vetor_t *vet, int indice)
 {
-	if (indice > 52) {
+	if (indice > vet->m) {
 		return NULL;
 	}
 
@@ -121,10 +125,6 @@ carta vetor_acessa_carta(vetor_t *vet, int indice)
 bool vetor_valido(vetor_t *vet)
 {
 	int i;
-
-	if (vet->n != 52) {
-		return false;
-	}
 
 	for (i = 0; i < vet->n; i++) {
 		if (vet->baralho[i] == NULL) {
