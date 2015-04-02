@@ -35,21 +35,20 @@
 #include "memo.h"
 
 struct vetor {
-	/* TODO aqui */
-	/* defina os campos da TAD vetor aqui */
-
-	carta* baralho;   /* baralho - vetor de cartas */
-	int n;		/* número de cartas */
+	carta* baralho; /* baralho - vetor de cartas */
+	int n; /* número de cartas existentes */
+	int m; /* número de cartas alocadas */
 };
 
 vetor_t* vetor_cria(void)
 {
 	int i;
-	struct vetor *vet = (struct vetor*)memo_aloca(sizeof(struct vetor));
+
+	struct vetor* vet = (struct vetor*) memo_aloca(sizeof(struct vetor));
 	  	      vet->n = 0;
-	for (i = 0; i < 53; i++) {
-		vet->baralho[i] = memo_aloca(sizeof(carta));
-	}
+		      vet->m = 52;
+	vet->baralho = (carta*) memo_aloca(vet->m * sizeof(carta));
+
 	return vet;
 }
 
@@ -57,16 +56,15 @@ void vetor_destroi(vetor_t* vet)
 {
 	int i;
 
-	for (i = 0; i < 53; i++) {
-		memo_libera(vet[i]);
-	}
-
+	//for (i = 0; i < vet->m; i++) {
+		memo_libera(vet->baralho);
+	//}
+	
 	memo_libera(vet);	
 }
 
 int vetor_numelem(vetor_t *vet)
 {
-	/* TODO aqui */
 	return vet->n;
 }
 
@@ -74,18 +72,18 @@ void vetor_insere_carta(vetor_t *vet, int indice, carta c)
 {
 	int i;
 
-	if (indice <= 52 && !vet[indice]) {
-		vet[indice] = c;
-	} else {
-		for (i = indice; i < 53; i++) {
-			if (i == 52) {
-				break;
-			}
+	if (indice > vet->m) {
+		memo_realoca(vet->baralho, vet->m++);
+	}
 
-			vet[i + 1] = vet[i];
+	if (vet->baralho[indice] == NULL) {
+		vet->baralho[indice] = c;
+	} else {
+		for (i = vet->n - 1; i >= indice; i--) {
+			vet->baralho[i + 1] = vet->baralho[i];
 		}
 
-		vet[indice] = c;
+		vet->baralho[indice] = c;
 	}
 
 	vet->n++;
@@ -93,34 +91,41 @@ void vetor_insere_carta(vetor_t *vet, int indice, carta c)
 
 carta vetor_remove_carta(vetor_t *vet, int indice)
 {
-	int i;
-	carta c;
+	int i; carta c;
 
-	if (indice > 52) {
+	if (indice > vet->m) {
 		return NULL;
 	}
 
-	c = vet[indice];
+	c = vet->baralho[indice];
 
-	for (i = indice; i < 53; i++) {
-		vet[i - 1] = vet[i];
+	for (i = indice; i < vet->n - 1; i++) {
+		vet->baralho[i] = vet->baralho[i + 1];
 	}
 
 	vet->n--;
+	vet->baralho[vet->n] = NULL;
 	return c;
 }
 
 carta vetor_acessa_carta(vetor_t *vet, int indice)
 {
-	if (indice > 52) {
+	if (indice > vet->m) {
 		return NULL;
 	}
 
-	return vet[indice];
+	return vet->baralho[indice];
 }
 
 bool vetor_valido(vetor_t *vet)
 {
-	/* TODO aqui */
-	return false;
+	int i;
+
+	for (i = 0; i < vet->n; i++) {
+		if (vet->baralho[i] == NULL) {
+			return false;
+		}
+	}
+
+	return true;
 }
