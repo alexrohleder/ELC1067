@@ -49,8 +49,8 @@ void jogo_desenha_carta(jogo sol, posicao pos, carta c)
     };
     char *linhas_f[] = {
         "+-----+",
-        "|X+X+X|",
-        "|+X+X+|",
+        "|-----|",
+        "|-----|",
         "+-----+",
         NULL
     };
@@ -111,7 +111,7 @@ void jogo_desenha(jogo sol)
     int i;
     posicao posmonte = { 1, 5 };
     posicao posdescartes = { 1, 15 };
-    posicao posases[] = { { 1, 30 }, { 1, 40 }, { 1, 50 }, { 1, 60 } };
+    posicao posases[] = { { 1, 35 }, { 1, 45 }, { 1, 55 }, { 1, 65 } };
     posicao pospilha[] = { { 7,  5 }, { 7, 15 }, { 7, 25 }, { 7, 35 },
                            { 7, 45 }, { 7, 55 }, { 7, 65 } };
 

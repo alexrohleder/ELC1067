@@ -56,10 +56,7 @@ void vetor_destroi(vetor_t* vet)
 {
 	int i;
 
-	//for (i = 0; i < vet->m; i++) {
-		memo_libera(vet->baralho);
-	//}
-	
+	memo_libera(vet->baralho);
 	memo_libera(vet);	
 }
 
