@@ -27,8 +27,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "memo.h"
+#include "vetor.h"
 #include "jogo.h"
 
 int 
@@ -37,11 +39,45 @@ main(int argc, char **argv)
 	jogo		solit;
 	solit = jogo_cria();
 
-	pilha_insere_carta(jogo_monte(solit), carta_cria(AS, OUROS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(REI, PAUS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(DAMA, COPAS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(2, PAUS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(10, ESPADAS));
+	srand(time(NULL));
+
+	vetor_t* cartas = vetor_cria();
+	vetor_t* cartas_embaralhadas = vetor_cria();
+
+	int i, j;
+	carta  c;
+
+	// Criando todas as 13 cartas dos 4 naipes
+	for (i = 0; i < 4; i++) {
+		for (j = 1; j <= 13; j++) {
+			vetor_insere_carta(cartas, (i * 13) + j - 1, carta_cria(i, j));
+		}
+	}
+
+	// Embaralhando...
+	for (i = 0; i < vetor_numelem(cartas); i++) {
+		j = ((int) rand()) % vetor_numelem(cartas);
+		c = vetor_remove_carta(cartas, j);
+		vetor_insere_carta(cartas_embaralhadas, i, c);
+	}
+
+	// Adiciona 28 cartas as 7 pilhas
+	for (i = 1; i <= 7; i++) {
+		for (j = 1; j <= i; j++) {
+			c = vetor_remove_carta(cartas_embaralhadas, 0);
+
+			if (j == i) {
+				carta_abre(c);
+			}
+
+			pilha_insere_carta(jogo_pilha(solit, i - 1), c);
+		}
+	}
+
+	// Cartas que restaram das pilhas adicionadas ao monte
+	for (i = 0; i < 52 - 28; i++) { 
+		pilha_insere_carta(jogo_monte(solit), vetor_remove_carta(cartas_embaralhadas, 0));
+	}
 
 	jogo_desenha(solit);
 	while (!pilha_vazia(jogo_monte(solit))) {

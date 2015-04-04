@@ -39,6 +39,8 @@ struct _carta {
 	bool aberta;
 };
 
+
+
 /* retorna uma nova carta, criado a partir do valor v e naipe n.
  * a carta será criada fechada.
  * Se v ou n forem inválidos, retorna NULL.
@@ -109,4 +111,9 @@ bool carta_aberta(carta c)
 bool carta_valida(carta c)
 {
 	return true;
+}
+
+carta carta_cria_aleatorio() {
+
+	carta c = carta_cria();
 }
