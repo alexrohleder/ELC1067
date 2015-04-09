@@ -45,8 +45,8 @@ typedef struct {
 typedef jogo_t *jogo;
 
 jogo jogo_cria(void);
+void jogo_inicia(jogo solit);
 void jogo_destroi(jogo);
-
 bool jogo_valido(jogo sol);
 
 /* acessores */

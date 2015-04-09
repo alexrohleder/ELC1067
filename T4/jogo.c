@@ -25,8 +25,10 @@
  */
 
 #include <assert.h>
+#include <time.h>
 
 #include "jogo.h"
+#include "vetor.h"
 #include "memo.h"
 
 #define SOLIT_MAGICO 0x50717
@@ -62,6 +64,51 @@ jogo_cria(void)
 	sol->tela = tela_cria();
 
 	return sol;
+}
+
+void
+jogo_inicia(jogo solit)
+{
+	srand(time(NULL));
+
+	vetor_t* cartas = vetor_cria();
+	vetor_t* cartas_embaralhadas = vetor_cria();
+
+	int i, j;
+	carta  c;
+
+	// Criando todas as 13 cartas dos 4 naipes
+	for (i = 0; i < 4; i++) {
+		for (j = 1; j <= 13; j++) {
+			vetor_insere_carta(cartas, (i * 13) + j - 1, carta_cria(j, i));
+		}
+	}
+
+	// Embaralhando...
+	for (i = 0; i < 52; i++) {
+		do {
+			j = ((int) rand()) % vetor_numelem(cartas);
+			c = vetor_remove_carta(cartas, j);
+		} while(c == NULL);
+
+		vetor_insere_carta(cartas_embaralhadas, i, c);
+	}
+
+	// Adiciona 28 cartas as 7 pilhas
+	for (i = 1; i <= 7; i++) {
+		for (j = 1; j <= i; j++) {
+			c = vetor_remove_carta(cartas_embaralhadas, 0);
+			pilha_insere_carta(jogo_pilha(solit, i - 1), c);
+		}
+
+		carta_abre(c); // Abre a carta do topo
+	}
+
+	// Cartas que restaram das pilhas adicionadas ao monte
+	for (i = 0; i < 52 - 28; i++) { 
+		pilha_insere_carta(jogo_monte(solit), vetor_remove_carta(cartas_embaralhadas, 0));
+	}
+
 }
 
 static void 

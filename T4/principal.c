@@ -34,14 +34,9 @@
 int 
 main(int argc, char **argv)
 {
-	jogo		solit;
+	jogo	solit;
 	solit = jogo_cria();
-
-	pilha_insere_carta(jogo_monte(solit), carta_cria(AS, OUROS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(REI, PAUS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(DAMA, COPAS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(2, PAUS));
-	pilha_insere_carta(jogo_monte(solit), carta_cria(10, ESPADAS));
+		jogo_inicia(solit);
 
 	jogo_desenha(solit);
 	while (!pilha_vazia(jogo_monte(solit))) {
