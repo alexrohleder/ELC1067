@@ -46,7 +46,7 @@ jogo_valido(jogo sol)
 jogo 
 jogo_cria(void)
 {
-	jogo		sol;
+	jogo  sol;
 	int		i;
 
 	sol = (jogo) memo_aloca(sizeof(jogo_t));
