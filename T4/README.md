@@ -1,7 +1,8 @@
-T4 - Solitaire
+# T4 - Solitaire
+
 ENTREGA: 16/04/2015 pelo GitHub (crie pasta T4 com os fontes)
 
-* DESCRIÇÃO
+## DESCRIÇÃO
 Completar o jogo de cartas "solitaire" com a biblioteca ncurses.
 (Veja exemplo na pasta T4 do GitHub descrito abaixo)
 
@@ -53,19 +54,18 @@ gcc -o solitaire -Wall -g principal.c vetor.c carta.c memo.c fila.c pilha.c jogo
 Link sobre valgrind: http://valgrind.org/docs/manual/quick-start.html
 Link sobre ncurses: http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/
 
-* ENTREGA
+## ENTREGA
 Na data da entrega, a pasta T4 deverá estar presente no GitHub.
 
-* DICAS
+## DICAS
 - teste seu programa!
 - separe cada comando em funções diferentes.
 - se achar necessário, faça alterações em outros arquivos além do principal.c
 - use o valgrind para evitar erros de memória.
 
-* REGRAS
+## REGRAS
 - Avaliação: nota de 0 até 10.
 - Respeite o formato no repositório Git.
 - Caso o repositório Git não tenha histórico, nota será próxima do zero.
 - Atrasos tem desconto, a critério do professor.
 - Plágio implica em nota zero.
-
