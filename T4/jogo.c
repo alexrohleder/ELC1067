@@ -77,7 +77,7 @@ jogo_inicia(jogo solit)
 	int i, j;
 	carta  c;
 
-	// Criando todas as 13 cartas dos 4 naipes
+	// Criando todas as 13 cartas dos 4 naipes, 52 interações
 	for (i = 0; i < 4; i++) {
 		for (j = 1; j <= 13; j++) {
 			vetor_insere_carta(cartas, (i * 13) + j - 1, carta_cria(j, i));
@@ -109,6 +109,13 @@ jogo_inicia(jogo solit)
 		pilha_insere_carta(jogo_monte(solit), vetor_remove_carta(cartas_embaralhadas, 0));
 	}
 
+}
+
+void
+jogo_comando(jogo solit) {
+	switch (tela_le(jogo_tela(solit))) {
+		
+	}
 }
 
 static void 

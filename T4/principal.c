@@ -40,7 +40,8 @@ main(int argc, char **argv)
 
 	jogo_desenha(solit);
 	while (!pilha_vazia(jogo_monte(solit))) {
-		carta		c;
+		carta c;
+
 		tela_le(jogo_tela(solit));
 
 		c = pilha_remove_carta(jogo_monte(solit));
