@@ -49,13 +49,8 @@ void jogo_desenha_carta(jogo sol, posicao pos, carta c)
     };
     char *linhas_f[] = {
         "+-----+",
-<<<<<<< HEAD
         "|xxxxx|",
         "|xxxxx|",
-=======
-        "|-----|",
-        "|-----|",
->>>>>>> 2393eaaf89d6f51e7e24372d530033d2b02f02e4
         "+-----+",
         NULL
     };
