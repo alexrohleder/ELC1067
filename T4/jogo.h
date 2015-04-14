@@ -58,6 +58,7 @@ pilha jogo_pilha(jogo sol, int i);
 
 /* desenha a mesa do jogo */
 void jogo_desenha(jogo);
+int  jogo_comando(jogo);
 
 /* acrescente mais funções ao jogo, se necessário */
 #endif

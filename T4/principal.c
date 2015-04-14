@@ -34,13 +34,14 @@
 int 
 main(int argc, char **argv)
 {
+	int     c = 0;
 	jogo	solit;
 	solit = jogo_cria();
 			jogo_inicia(solit);
 			jogo_desenha(solit);
 
-	while (!pilha_vazia(jogo_monte(solit))) {
-		jogo_comando(solit);
+	while (c != 'c') {
+		c = jogo_comando(solit);
 		jogo_desenha(solit);
 	}
 

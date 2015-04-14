@@ -28,6 +28,7 @@
 #include <time.h>
 
 #include "jogo.h"
+#include "vetor.h"
 #include "memo.h"
 
 #define SOLIT_MAGICO 0x50717
@@ -170,11 +171,9 @@ jogo_verifica_imediato(carta c1, carta c2, int mesmo_naipe) {
 void
 jogo_corrige_pilha(pilha p) {
 	if (!pilha_vazia(p)) {
-		pilha_insere_carta(p, 
-			carta_abre(
-				pilha_remove_carta(p)
-			)
-		);
+		carta c = pilha_remove_carta(p);
+		carta_abre(c);
+		pilha_insere_carta(p, c);
 	}
 }
 
@@ -182,16 +181,19 @@ jogo_corrige_pilha(pilha p) {
  * Pede ao usuário que insira um número de 1 a 7 e retorna a lista
  * correspondente a este index.
  *
- * @return void
+ * @return pilha
  */
 
-void
+pilha
 jogo_seleciona_lista(jogo solit) {
-	return jogo_pilha(
-		tela_le(
-			jogo_tela(solit)
-		) - 49 // Tabela ascii inicia seus números no 48(0) + 1 para corrigir a entrada de 1 a 7 para 0 a 6
-	);
+	int p = tela_le(jogo_tela(solit));
+	
+	if (p < 48 || p > 58) {
+		printw(ERR_JOGADA); 
+		return NULL;
+	}
+
+	return jogo_pilha(solit, p - 49);
 }
 
 /**
@@ -223,7 +225,7 @@ jogo_carta_para_ases(jogo solit, carta c) {
 			b  = jogo_verifica_imediato(c, cp, 1);
 		} while (i < 4 && (p == NULL || b != true));
 
-		if (b != 1) {
+		if (b != true) {
 			printw(ERR_INSERIR_EM_ASES);
 			return false;
 		} else {
@@ -295,7 +297,8 @@ jogo_monte_para_descarte(jogo solit) {
 		/**/ printw(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(monte);
-				  pilha_insere_carta(jogo_descartes(solit), carta_abre(c));
+		carta_abre(c);
+	  	pilha_insere_carta(jogo_descartes(solit), c);
 	}
 }
 
@@ -311,7 +314,8 @@ jogo_descarte_para_monte(jogo solit) {
 
 	while (!pilha_vazia(jogo_descartes(solit))) {
 		c = pilha_remove_carta(jogo_descartes(solit));
-			pilha_insere_carta(jogo_monte(solit), carta_abre(c));
+		carta_fecha(c);
+		pilha_insere_carta(jogo_monte(solit), c);
 	}
 }
 
@@ -330,15 +334,15 @@ jogo_descarte_para_pilha(jogo solit, pilha p) {
 	} else {
 		carta c = pilha_remove_carta(descarte);
 
-		if (c == 13 && pilha_vazia(p)) {
+		if (carta_valor(c) == 13 && pilha_vazia(p)) {
 			pilha_insere_carta(p, c);
 		} else {
 			carta t = pilha_remove_carta(p);
+				    pilha_insere_carta(p, t);
 
 			if (jogo_verifica_imediato(c, t, 0) == true) {
-				    pilha_insere_carta(p, t);
 				    pilha_insere_carta(p, c);
-			} else  pilha_insere_carta(p, t);
+			} else  pilha_insere_carta(descarte, c);
 		}
 	}
 }
@@ -427,7 +431,7 @@ jogo_pilha_para_descarte(jogo solit, pilha p) {
 		/**/ printw(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(p);
-				  pilha_insere_carta(jogo_descartes(solit), c);
+	  		  pilha_insere_carta(jogo_descartes(solit), c);
 	  	jogo_corrige_pilha(p);
 	}
 }
@@ -438,51 +442,67 @@ jogo_pilha_para_descarte(jogo solit, pilha p) {
  * @return void
  */
 
-void
+int
 jogo_comando(jogo solit) {
-	switch (tela_le(jogo_tela(solit))) {
+	pilha l1 = NULL;
+	pilha l2 = NULL;
+	int   c  = tela_le(jogo_tela(solit));
+
+	switch (c) {
 		// Move do monte para o descarte
-		case ' ':
-			if (pilha_vazia(jogo_monte(solit))) {
-				   jogo_monte_para_descarte(solit);
-			} else jogo_descarte_para_monte(solit);
+		case ' '://c
+			jogo_monte_para_descarte(solit);
+
+			break;
+		case 'b'://c
+		   	jogo_descarte_para_monte(solit);
 
 			break;
 		// Move do descarte para uma pilha
-		case 'q':
-			jogo_descarte_para_pilha(solit, 
-				jogo_seleciona_lista(solit)
-			);
+		case 'q'://c
+			l1 = jogo_seleciona_lista(solit);
+			
+			if (l1 != NULL) {
+				jogo_descarte_para_pilha(solit, l1);
+			}
 
 			break;
 		// Move do descarte para os ases
-		case 'w':
+		case 'w'://c
 			jogo_descarte_para_ases(solit);
 
 			break;
 		// Move de uma pilha a outra
 		case 'e':
-			jogo_pilha_para_pilha(
-				jogo_seleciona_lista(solit),
-				jogo_seleciona_lista(solit)
-			);
+			l1 = jogo_seleciona_lista(solit);
+			l2 = jogo_seleciona_lista(solit);
+
+			if (l1 != NULL && l2 != NULL) {
+				jogo_pilha_para_pilha(l1, l2);
+			}
 
 			break;
 		// Move de uma pilha aos ases
-		case 'r':
-			jogo_pilha_para_ases(solit,
-				jogo_seleciona_lista(solit)
-			);
+		case 'r'://c
+			l1 = jogo_seleciona_lista(solit);
+
+			if (l1 != NULL) {
+				jogo_pilha_para_ases(solit, l1);
+			}
 
 			break;
 		// Move de uma pilha ao descarte
-		case 't':
-			jogo_pilha_para_descarte(solit,
-				jogo_seleciona_lista(solit)
-			);
+		case 't'://c
+			l1 = jogo_seleciona_lista(solit);
+
+			if (l1 != NULL) {
+				jogo_pilha_para_descarte(solit, l1);
+			}
 
 			break;
 		default:
 			printw(ERR_JOGADA);
 	}
+
+	return c;
 }

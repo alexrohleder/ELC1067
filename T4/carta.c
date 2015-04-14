@@ -113,7 +113,3 @@ bool carta_valida(carta c)
 	return true;
 }
 
-carta carta_cria_aleatorio() {
-
-	carta c = carta_cria();
-}
