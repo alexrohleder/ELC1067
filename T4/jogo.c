@@ -166,9 +166,9 @@ jogo_verifica_imediato(carta c1, carta c2, int mesmo_naipe) {
 
 	if (carta_valor(c1) == carta_valor(c2) - 1) {
 		if (mesmo_naipe == 0 && c1_naipe != c2_naipe) {
-			/*if ((c1_naipe <= 1 && c2_naipe >= 2) || (c1_naipe >= 2 && c2_naipe <= 1)) {*/
+			if ((c1_naipe <= 1 && c2_naipe >= 2) || (c1_naipe >= 2 && c2_naipe <= 1)) {
 				return true;
-			/*}*/
+			}
 		} else {
 			if (mesmo_naipe == 1 && c1_naipe == c2_naipe) {
 				return true;
