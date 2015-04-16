@@ -30,6 +30,7 @@
 #include "jogo.h"
 #include "vetor.h"
 #include "memo.h"
+#include "carta.h"
 
 #define SOLIT_MAGICO 0x50717
 #define DESTRUIDO 0x80000000
@@ -142,6 +143,12 @@ jogo_pilha(jogo sol, int i)
 	return sol->pilhas[i];
 }
 
+void
+jogo_log(char* message)
+{
+	printw(message);
+}
+
 /**
  * Verifica se a carta c1 é imediatamente inferior e caso $mesmo_naipe
  * seja definido como 1, se o naipe de c1 e c2 são iguais, o contrário
@@ -152,13 +159,21 @@ jogo_pilha(jogo sol, int i)
 
 bool
 jogo_verifica_imediato(carta c1, carta c2, int mesmo_naipe) {
+	naipe c1_naipe = carta_naipe(c1);
+	naipe c2_naipe = carta_naipe(c2);
+
 	if (carta_valor(c1) == carta_valor(c2) - 1) {
-		if (mesmo_naipe == 0 && carta_naipe(c1) != carta_naipe(c2)) {
-			return true;
-		}
+		if (mesmo_naipe == 0 && c1_naipe != c2_naipe) {
+			if (c1_naipe <= 1 && c2_naipe >= 2 || c1_naipe >= 2 && c2_naipe <= 1) {
+				return true;
+			}
+		} else
+			if (mesmo_naipe == 1 && c1_naipe == c2_naipe) {
+				return true;
+			}
 	}
 
-	printw(ERR_IMEDIATO);
+	jogo_log(ERR_IMEDIATO);
 	return false;
 }
 
@@ -189,7 +204,7 @@ jogo_seleciona_lista(jogo solit) {
 	int p = tela_le(jogo_tela(solit));
 	
 	if (p < 48 || p > 58) {
-		printw(ERR_JOGADA); 
+		jogo_log(ERR_JOGADA); 
 		return NULL;
 	}
 
@@ -226,7 +241,7 @@ jogo_carta_para_ases(jogo solit, carta c) {
 		} while (i < 4 && (p == NULL || b != true));
 
 		if (b != true) {
-			printw(ERR_INSERIR_EM_ASES);
+			jogo_log(ERR_INSERIR_EM_ASES);
 			return false;
 		} else {
 			pilha_insere_carta(p, cp);
@@ -294,11 +309,12 @@ jogo_monte_para_descarte(jogo solit) {
 	pilha monte = jogo_monte(solit);
 
 	if (pilha_vazia(monte)) {
-		/**/ printw(ERR_PILHA_VAZIA);
+		/**/ jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(monte);
 		carta_abre(c);
 	  	pilha_insere_carta(jogo_descartes(solit), c);
+	  	jogo_log("Carta movida do monte para o descarte.");
 	}
 }
 
@@ -317,6 +333,8 @@ jogo_descarte_para_monte(jogo solit) {
 		carta_fecha(c);
 		pilha_insere_carta(jogo_monte(solit), c);
 	}
+
+	jogo_log("Descarte virado no monte");
 }
 
 /**
@@ -330,7 +348,7 @@ jogo_descarte_para_pilha(jogo solit, pilha p) {
 	pilha descarte = jogo_descartes(solit);
 
 	if (pilha_vazia(descarte)) {
-		/**/ printw(ERR_PILHA_VAZIA);
+		/**/ jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(descarte);
 
@@ -344,6 +362,8 @@ jogo_descarte_para_pilha(jogo solit, pilha p) {
 				    pilha_insere_carta(p, c);
 			} else  pilha_insere_carta(descarte, c);
 		}
+
+		jogo_log("Carta movida do descarte para a pilha.");
 	}
 }
 
@@ -359,13 +379,15 @@ jogo_descarte_para_ases(jogo solit) {
 	pilha descarte = jogo_descartes(solit);
 
 	if (pilha_vazia(descarte)) {
-		/**/ printw(ERR_PILHA_VAZIA);
+		/**/ jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(descarte);
 		int conseguiu_inserir_nos_ases = jogo_carta_para_ases(solit, c);
 		if (conseguiu_inserir_nos_ases == false) {
 			pilha_insere_carta(descarte, c);
 		}
+
+		jogo_log("Carta movida do descarte para os ases.");
 	}
 }
 
@@ -379,7 +401,7 @@ jogo_descarte_para_ases(jogo solit) {
 void
 jogo_pilha_para_pilha(pilha p1, pilha p2) {
 	if (pilha_vazia(p1)) {
-		printw(ERR_PILHA_VAZIA);
+		jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c1 = pilha_remove_carta(p1);
 
@@ -389,12 +411,31 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 			carta c2 = pilha_remove_carta(p2);
 					   pilha_insere_carta(p2, c2);
 
-			if (jogo_verifica_imediato(c1, c2, 0) == true) {
-				jogo_corrige_pilha(p1);
+		    // c1 neste caso deve ser a primeira carta aberta da p1
+		    carta cartas[13];
+		    int   i = 0;
 
-				   pilha_insere_carta(p2, c1);
-			} else pilha_insere_carta(p1, c1);
+		    do {
+		    	cartas[i] = pilha_remove_carta(p1);
+		    } while (i < 13 && carta_aberta(cartas[i]));
+
+		    if (!carta_aberta(cartas[i])) {
+		    	 cartas[i] = NULL;
+		    	 i = i - 1;
+		    }
+
+		    if (jogo_verifica_imediato(cartas[i], c2, 0) == true) {
+		    	for (; i >= 0; i--) {
+		    		pilha_insere_carta(p2, cartas[i]);
+		    	}
+		    } else {
+		    	for (; i >= 0; i--) {
+		    		pilha_insere_carta(p1, cartas[i]);
+		    	}
+		    }
 		}
+
+		jogo_log("Carta movida de uma pilha a outra.");
 	}
 }
 
@@ -408,7 +449,7 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 void
 jogo_pilha_para_ases(jogo solit, pilha p) {
 	if (pilha_vazia(p)) {
-		/**/ printw(ERR_PILHA_VAZIA);
+		/**/ jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(p);
 		int   conseguiu_inserir_nos_ases = jogo_carta_para_ases(solit, c);
@@ -416,6 +457,8 @@ jogo_pilha_para_ases(jogo solit, pilha p) {
 		if (conseguiu_inserir_nos_ases == true) {
 			   jogo_corrige_pilha(p);
 		} else pilha_insere_carta(p, c);
+
+		jogo_log("Carta movida da pilha para os ases.");
 	}
 }
 
@@ -428,11 +471,12 @@ jogo_pilha_para_ases(jogo solit, pilha p) {
 void
 jogo_pilha_para_descarte(jogo solit, pilha p) {
 	if (pilha_vazia(p)) {
-		/**/ printw(ERR_PILHA_VAZIA);
+		/**/ jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(p);
-	  		  pilha_insere_carta(jogo_descartes(solit), c);
+	  			  pilha_insere_carta(jogo_descartes(solit), c);
 	  	jogo_corrige_pilha(p);
+	  	jogo_log("Carta movida de uma pilha para o descarte.");
 	}
 }
 
@@ -501,7 +545,7 @@ jogo_comando(jogo solit) {
 
 			break;
 		default:
-			printw(ERR_JOGADA);
+			jogo_log(ERR_JOGADA);
 	}
 
 	return c;
