@@ -313,7 +313,7 @@ jogo_monte_para_descarte(jogo solit) {
 	pilha monte = jogo_monte(solit);
 
 	if (pilha_vazia(monte)) {
-		/**/ jogo_log(ERR_PILHA_VAZIA);
+		jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(monte);
 		carta_abre(c);
@@ -352,7 +352,7 @@ jogo_descarte_para_pilha(jogo solit, pilha p) {
 	pilha descarte = jogo_descartes(solit);
 
 	if (pilha_vazia(descarte)) {
-		/**/ jogo_log(ERR_PILHA_VAZIA);
+		jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(descarte);
 
@@ -383,7 +383,7 @@ jogo_descarte_para_ases(jogo solit) {
 	pilha descarte = jogo_descartes(solit);
 
 	if (pilha_vazia(descarte)) {
-		/**/ jogo_log(ERR_PILHA_VAZIA);
+		jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(descarte);
 		int conseguiu_inserir_nos_ases = jogo_carta_para_ases(solit, c);
@@ -455,7 +455,7 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 void
 jogo_pilha_para_ases(jogo solit, pilha p) {
 	if (pilha_vazia(p)) {
-		/**/ jogo_log(ERR_PILHA_VAZIA);
+		jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(p);
 		int   conseguiu_inserir_nos_ases = jogo_carta_para_ases(solit, c);
@@ -477,7 +477,7 @@ jogo_pilha_para_ases(jogo solit, pilha p) {
 void
 jogo_pilha_para_descarte(jogo solit, pilha p) {
 	if (pilha_vazia(p)) {
-		/**/ jogo_log(ERR_PILHA_VAZIA);
+		jogo_log(ERR_PILHA_VAZIA);
 	} else {
 		carta c = pilha_remove_carta(p);
 	  			  pilha_insere_carta(jogo_descartes(solit), c);
@@ -500,16 +500,16 @@ jogo_comando(jogo solit) {
 
 	switch (c) {
 		// Move do monte para o descarte
-		case ' '://c
+		case ' ':
 			jogo_monte_para_descarte(solit);
 
 			break;
-		case 'b'://c
+		case 'b':
 		   	jogo_descarte_para_monte(solit);
 
 			break;
 		// Move do descarte para uma pilha
-		case 'q'://c
+		case 'q':
 			l1 = jogo_seleciona_lista(solit);
 			
 			if (l1 != NULL) {
@@ -518,7 +518,7 @@ jogo_comando(jogo solit) {
 
 			break;
 		// Move do descarte para os ases
-		case 'w'://c
+		case 'w':
 			jogo_descarte_para_ases(solit);
 
 			break;
@@ -533,7 +533,7 @@ jogo_comando(jogo solit) {
 
 			break;
 		// Move de uma pilha aos ases
-		case 'r'://c
+		case 'r':
 			l1 = jogo_seleciona_lista(solit);
 
 			if (l1 != NULL) {
@@ -542,7 +542,7 @@ jogo_comando(jogo solit) {
 
 			break;
 		// Move de uma pilha ao descarte
-		case 't'://c
+		case 't':
 			l1 = jogo_seleciona_lista(solit);
 
 			if (l1 != NULL) {
