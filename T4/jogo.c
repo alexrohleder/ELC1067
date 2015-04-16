@@ -35,10 +35,10 @@
 #define SOLIT_MAGICO 0x50717
 #define DESTRUIDO 0x80000000
 
-#define ERR_PILHA_VAZIA "\nVocê não pode remover uma carta de uma pilha vazia.\n"
-#define ERR_IMEDIATO "\nVocê deve colocar uma carta imediatamente inferior e de naipe diferente nesta pilha!\n"
-#define ERR_INSERIR_EM_ASES "\nAinda não é possível inserir esta carta a pilha de ases.\n"
-#define ERR_JOGADA "\nEsta jogada não existe.\n"
+#define ERR_PILHA_VAZIA "Você não pode remover uma carta de uma pilha vazia."
+#define ERR_IMEDIATO "Você deve colocar uma carta imediatamente inferior e de naipe diferente nesta pilha!"
+#define ERR_INSERIR_EM_ASES "Ainda não é possível inserir esta carta a pilha de ases."
+#define ERR_JOGADA "Esta jogada não existe."
 
 bool 
 jogo_valido(jogo sol)
@@ -146,6 +146,7 @@ jogo_pilha(jogo sol, int i)
 void
 jogo_log(char* message)
 {
+	printw("\n");
 	printw(message);
 }
 
@@ -164,7 +165,7 @@ jogo_verifica_imediato(carta c1, carta c2, int mesmo_naipe) {
 
 	if (carta_valor(c1) == carta_valor(c2) - 1) {
 		if (mesmo_naipe == 0 && c1_naipe != c2_naipe) {
-			if (c1_naipe <= 1 && c2_naipe >= 2 || c1_naipe >= 2 && c2_naipe <= 1) {
+			if ((c1_naipe <= 1 && c2_naipe >= 2) || (c1_naipe >= 2 && c2_naipe <= 1)) {
 				return true;
 			}
 		} else
@@ -226,27 +227,35 @@ jogo_carta_para_ases(jogo solit, carta c) {
 	if (carta_valor(c) == 1) {
 		do {
 			p = jogo_ases(solit, i); i++;
-		} while (p == NULL);
+		} while (!pilha_vazia(p));
 
 		pilha_insere_carta(p, c);
 		return true;
 	} else {
 		carta cp;
-		int    b;
+		bool   b;
 		
-		do {
-			p  = jogo_ases(solit, i); i++;
-			cp = pilha_remove_carta(p);
-			b  = jogo_verifica_imediato(c, cp, 1);
-		} while (i < 4 && (p == NULL || b != true));
+		for (; i < 4; i++) {
+			p  = jogo_ases(solit, i);
+			i  = i + 1;
 
-		if (b != true) {
-			jogo_log(ERR_INSERIR_EM_ASES);
-			return false;
-		} else {
+			if (!pilha_vazia(p)) {
+				cp = pilha_remove_carta(p);
+				b  = jogo_verifica_imediato(c, cp, 1);
+					 pilha_insere_carta(p, cp);
+				if (b == true) {
+					break;
+				}
+			}
+		}
+
+		if (b == true) {
 			pilha_insere_carta(p, cp);
 			pilha_insere_carta(p, c);
 			return true;
+		} else {
+			jogo_log(ERR_INSERIR_EM_ASES);
+			return false;
 		}
 	}
 }
@@ -356,7 +365,7 @@ jogo_descarte_para_pilha(jogo solit, pilha p) {
 			pilha_insere_carta(p, c);
 		} else {
 			carta t = pilha_remove_carta(p);
-				    pilha_insere_carta(p, t);
+				      pilha_insere_carta(p, t);
 
 			if (jogo_verifica_imediato(c, t, 0) == true) {
 				    pilha_insere_carta(p, c);
@@ -411,28 +420,33 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 			carta c2 = pilha_remove_carta(p2);
 					   pilha_insere_carta(p2, c2);
 
-		    // c1 neste caso deve ser a primeira carta aberta da p1
-		    carta cartas[13];
-		    int   i = 0;
+		    pilha p3 = pilha_cria();
+		    carta cp = c1;
 
-		    do {
-		    	cartas[i] = pilha_remove_carta(p1);
-		    } while (i < 13 && carta_aberta(cartas[i]));
+		    pilha_insere_carta(p3, cp);
 
-		    if (!carta_aberta(cartas[i])) {
-		    	 cartas[i] = NULL;
-		    	 i = i - 1;
+		    while (!pilha_vazia(p1) && carta_aberta(cp)) {
+		    	cp = pilha_remove_carta(p1);
+		    	pilha_insere_carta(p3,  cp);
 		    }
 
-		    if (jogo_verifica_imediato(cartas[i], c2, 0) == true) {
-		    	for (; i >= 0; i--) {
-		    		pilha_insere_carta(p2, cartas[i]);
+		    if (!carta_aberta(cp)) {
+		    	pilha_insere_carta(p1, pilha_remove_carta(p3));
+		    	cp = pilha_remove_carta(p3);
+		    		 pilha_insere_carta(p3, cp);
+		    }
+
+		    if (jogo_verifica_imediato(cp, c2, 0) == true) {
+		    	while (!pilha_vazia(p3)) {
+		    		pilha_insere_carta(p2, pilha_remove_carta(p3));
 		    	}
 		    } else {
-		    	for (; i >= 0; i--) {
-		    		pilha_insere_carta(p1, cartas[i]);
+		    	while (!pilha_vazia(p3)) {
+		    		pilha_insere_carta(p1, pilha_remove_carta(p3));
 		    	}
 		    }
+
+		    jogo_corrige_pilha(p1);
 		}
 
 		jogo_log("Carta movida de uma pilha a outra.");
