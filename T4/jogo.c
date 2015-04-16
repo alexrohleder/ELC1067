@@ -38,6 +38,7 @@
 #define ERR_PILHA_VAZIA "Você não pode remover uma carta de uma pilha vazia."
 #define ERR_IMEDIATO "Você deve colocar uma carta imediatamente inferior e de naipe diferente nesta pilha!"
 #define ERR_INSERIR_EM_ASES "Ainda não é possível inserir esta carta a pilha de ases."
+#define ERR_JOGADA_INVALIDA "Esta jogada é invalida."
 #define ERR_JOGADA "Esta jogada não existe."
 
 bool 
@@ -165,9 +166,9 @@ jogo_verifica_imediato(carta c1, carta c2, int mesmo_naipe) {
 
 	if (carta_valor(c1) == carta_valor(c2) - 1) {
 		if (mesmo_naipe == 0 && c1_naipe != c2_naipe) {
-			if ((c1_naipe <= 1 && c2_naipe >= 2) || (c1_naipe >= 2 && c2_naipe <= 1)) {
+			/*if ((c1_naipe <= 1 && c2_naipe >= 2) || (c1_naipe >= 2 && c2_naipe <= 1)) {*/
 				return true;
-			}
+			/*}*/
 		} else {
 			if (mesmo_naipe == 1 && c1_naipe == c2_naipe) {
 				return true;
@@ -409,8 +410,14 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 	} else {
 		carta c1 = pilha_remove_carta(p1);
 
-		if (carta_valor(c1) == 13 && pilha_vazia(p2)) {
-			pilha_insere_carta(p2, c1);
+		if (pilha_vazia(p2)) {
+			if (carta_valor(c1) == 13) {
+				pilha_insere_carta(p2, c1);
+				
+			} else {
+				pilha_insere_carta(p1, c1);
+				jogo_log(ERR_JOGADA_INVALIDA);
+			}
 		} else {
 			carta c2 = pilha_remove_carta(p2);
 					   pilha_insere_carta(p2, c2);
@@ -428,7 +435,7 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 		    if (!carta_aberta(cp)) {
 		    	pilha_insere_carta(p1, pilha_remove_carta(p3));
 		    	cp = pilha_remove_carta(p3);
-		    		 pilha_insere_carta(p3, cp);
+    		 		pilha_insere_carta(p3, cp);
 		    }
 
 		    bool para_segunda_pilha = jogo_verifica_imediato(cp, c2, 0);
@@ -438,11 +445,12 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 		    }
 
 		    pilha_destroi(p3);
-		    jogo_corrige_pilha(p1);
 		}
 
 		jogo_log("Carta movida de uma pilha a outra.");
 	}
+
+        jogo_corrige_pilha(p1);
 }
 
 /**
