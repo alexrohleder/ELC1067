@@ -168,10 +168,11 @@ jogo_verifica_imediato(carta c1, carta c2, int mesmo_naipe) {
 			if ((c1_naipe <= 1 && c2_naipe >= 2) || (c1_naipe >= 2 && c2_naipe <= 1)) {
 				return true;
 			}
-		} else
+		} else {
 			if (mesmo_naipe == 1 && c1_naipe == c2_naipe) {
 				return true;
 			}
+		}
 	}
 
 	jogo_log(ERR_IMEDIATO);
@@ -233,30 +234,24 @@ jogo_carta_para_ases(jogo solit, carta c) {
 		return true;
 	} else {
 		carta cp;
-		bool   b;
 		
 		for (; i < 4; i++) {
 			p  = jogo_ases(solit, i);
-			i  = i + 1;
 
 			if (!pilha_vazia(p)) {
 				cp = pilha_remove_carta(p);
-				b  = jogo_verifica_imediato(c, cp, 1);
 					 pilha_insere_carta(p, cp);
-				if (b == true) {
-					break;
+
+				if (jogo_verifica_imediato(cp, c, 1) == true) {
+					pilha_insere_carta(p, cp);
+					pilha_insere_carta(p, c);
+					return true;
 				}
 			}
 		}
 
-		if (b == true) {
-			pilha_insere_carta(p, cp);
-			pilha_insere_carta(p, c);
-			return true;
-		} else {
-			jogo_log(ERR_INSERIR_EM_ASES);
-			return false;
-		}
+		jogo_log(ERR_INSERIR_EM_ASES);
+		return false;
 	}
 }
 
@@ -436,16 +431,13 @@ jogo_pilha_para_pilha(pilha p1, pilha p2) {
 		    		 pilha_insere_carta(p3, cp);
 		    }
 
-		    if (jogo_verifica_imediato(cp, c2, 0) == true) {
-		    	while (!pilha_vazia(p3)) {
-		    		pilha_insere_carta(p2, pilha_remove_carta(p3));
-		    	}
-		    } else {
-		    	while (!pilha_vazia(p3)) {
-		    		pilha_insere_carta(p1, pilha_remove_carta(p3));
-		    	}
+		    bool para_segunda_pilha = jogo_verifica_imediato(cp, c2, 0);
+
+		    while (!pilha_vazia(p3)) {
+		    	pilha_insere_carta(para_segunda_pilha == true ? p2 : p1, pilha_remove_carta(p3));
 		    }
 
+		    pilha_destroi(p3);
 		    jogo_corrige_pilha(p1);
 		}
 
