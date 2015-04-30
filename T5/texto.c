@@ -165,6 +165,30 @@ void texto_atualiza_tela(texto_t* txt)
 }
 
 /**
+ * Apaga toda a tela e escreve um texto logo
+ * no início dela.
+ *
+ * @param  text_t, char*
+ * @return void
+ */
+void texto_escreve_tela(text_t* txt, char* c)
+{
+	ponto_t p;
+	tamanho_t t;
+
+	// criando um ponto que represente o tamanho
+	// de uma linha.
+	t = tela_tamanho_texto(c);
+	p.x = 1;
+	p.y = t.alt + 1;
+
+	// Limpa a tela e manda uma mensagem requisitando
+	// que um nome para o arquivo seja definido.
+	tela_limpa(&txt->tela);
+	tela_texto(&txt->tela, p, c);
+}
+
+/**
  * Salva o texto editado em um novo ou existente arquivo.
  * Caso o arquivo já exista o conteúdo será adicionado ao
  * seu final.
@@ -172,22 +196,12 @@ void texto_atualiza_tela(texto_t* txt)
  * @param  text_t
  * @return void
  */
-void texto_comando_salvar(text_t* txt)
+void texto_comando_salvar(texto_t* txt)
 {
-	ponto_t c;
-	char* n, o, m = "Qual nome deseja por no arquivo?";
+	char* n,  o;
 	int t, i, j;
 
-	// criando um ponto que represente o tamanho
-	// de uma linha.
-	t = tela_tamanho_texto(m);
-	c.x = 1;
-	c.y = t.alt + 1;
-
-	// Limpa a tela e manda uma mensagem requisitando
-	// que um nome para o arquivo seja definido.
-	tela_limpa(&txt->tela);
-	tela_texto(&txt->tela, p, m);
+	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
 
 	// Le o nome do arquivo e tenta abri-lo
 	// caso não exista o arquivo a permissão
@@ -217,9 +231,39 @@ void texto_comando_salvar(text_t* txt)
  * @param  text_t
  * @return void
  */
-void texto_comando_editar(text_t* txt)
+void texto_comando_editar(texto_t* txt)
 {
-	// ...
+	char* n, c;
+	int i;
+
+	texto_escreve_tela(txt, "Qual o nome do arquivo?");
+
+	// Requisita o nome do arquivo e tenta abri-lo 
+	// apenas para leitura.
+	scanf("%s", n);
+	FILE *f = fopen(n, "r");
+
+	// caso não o encontre ou não tenha permissão
+	// para leitura, apenas segue com a execução 
+	// mostrando um erro no terminal.
+	if (f == NULL) {
+		printf("Não foi possível abrir o arquivo \"%s\".", n); return;
+	}
+
+	lista_t* l = txt->linhas;
+
+	while (feof(f) != 0) {
+		c = fgetc(c);
+
+		if (c == "\n") {
+			l = lista_adiciona(txt->linhas, ""); continue;
+		}
+
+		l->valor = strcat(l->valor, (char*) c);
+	}
+
+	txt->colcur = 0;
+	txt->lincur = 0;
 }
 
 /**
@@ -228,9 +272,33 @@ void texto_comando_editar(text_t* txt)
  * @param  text_t
  * @return void
  */
-void texto_nova_linha(text_t* txt)
+void texto_nova_linha(texto_t* txt)
 {
+	lista_adiciona(txt->linhas, "");
+	txt->lincur++;
+	txt->colcur = 0;
+}
 
+/**
+ * Apaga o último caracter, caso esteja no inicio da linha,
+ * apaga a linha.
+ *
+ * @param  text_t
+ * @return void
+ */
+void texto_apaga_caracter(texto_t* txt)
+{
+	if (txt->colcur == 0) {
+		if (txt->lincur > 0) {
+			lista_remove(txt->linhas, txt->lincur);
+			txt->lincur--;
+		}
+	} else {
+		lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
+		int i = strlen(l->valor); // último caracter, \0
+		l->valor[i - 1] = 0; // Penúltimo caracter vira o \0
+		txt->colcur--;
+	}
 }
 
 /**
@@ -247,23 +315,45 @@ bool texto_processa_comandos(texto_t* txt)
 	
 	if (modificador & ALLEGRO_KEYMOD_CTRL) {
 		switch (tecla) {
+			// CTRL + Q: Fecha o editor de texto.
 			case ALLEGRO_KEY_Q:
 				return false;
 
+			// CTRL + S: Salva em um arquivo todo o texto atual.
 			case ALLEGRO_KEY_S:
-				texto_comando_salvar(); break;
+				texto_comando_salvar(txt); break;
 
+			// CTRL + E: Abre um arquivo no editor de texto.
 			case ALLEGRO_KEY_E:
-				texto_comando_editar(); break;
+				texto_comando_editar(txt); break;
 		}
 	}
 
 	switch (tecla) {
-		case ALLEGRO_KEY_LEFT: texto_move_esq(txt); break;
-		case ALLEGRO_KEY_RIGHT: texto_move_dir(txt); break;
-		case ALLEGRO_KEY_UP: texto_move_cima(txt); break;
-		case ALLEGRO_KEY_DOWN: texto_move_baixo(txt); break;
-		case ALLEGRO_KEY_ENTER: case ALLEGRO_KEY_PAD_ENTER: texto_nova_linha(txt); break;
+		// Move o cursor pra esquerda.
+		case ALLEGRO_KEY_LEFT:
+			texto_move_esq(txt); break;
+
+		// Move o cursor pra direita.
+		case ALLEGRO_KEY_RIGHT: 
+			texto_move_dir(txt); break;
+
+		// Move o cursor pra cima.
+		case ALLEGRO_KEY_UP:
+			texto_move_cima(txt); break;
+
+		// Move o cursor pra baixo.
+		case ALLEGRO_KEY_DOWN:
+			texto_move_baixo(txt); break;
+
+		// Remove o último caracter.
+		case ALLEGRO_KEY_BACKSPACE: 
+			texto_apaga_caracter(txt); break;
+
+		// Quebra a linha.
+		case ALLEGRO_KEY_ENTER:
+		case ALLEGRO_KEY_PAD_ENTER: 
+			texto_nova_linha(txt); break;
 	}
 
 	return true;
