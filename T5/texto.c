@@ -288,8 +288,23 @@ void texto_remove_char(texto_t* txt)
 {
 	if (txt->colcur == 0) {
 		if (txt->lincur > 0) {
-			lista_remove(txt->linhas, txt->lincur);
+			int i, n = sizeof(txt->linhas->valor);
+
+			// A inserção deve ser feita na linha anterior,
+			// para seguir a interface de texto.h decrementei
+			// antes do loop o número de linhas
 			txt->lincur--;
+
+			// Movendo todo o texto da linha removida
+			// para a linha anterior.
+			for (i = 0; i < n; i++) {
+				// Manipulando a linha excluida atravéz do ponteiro
+				// próximo, para seguir a interface de texto.h
+				texto_insere_char(txt, txt->linhas->proxima->valor[i]);
+			}
+
+			// Remove a lista que sobrou
+			lista_remove(txt->linhas, txt->lincur + 1);
 		}
 	} else {
 		lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
@@ -305,7 +320,7 @@ void texto_remove_char(texto_t* txt)
  * @param  texto_t, int
  * @return void
  */
-void texto_insere_char(texto_t* txt, int c)
+void texto_insere_char(texto_t txt, int c)
 {
 	char* caracter;
 
