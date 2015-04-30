@@ -38,7 +38,7 @@ typedef struct {
 	int colcur;     /* coluna onde esta o cursoe na linha acima */
 	int lin1;       /* linha do texto mostrada na primeira linha da tela */
 	int col1;       /* coluna do texto mostrada na primeira coluna da tela */
-	char* content;
+	
 	tela_t tela;    /* tela do editor */
 } texto_t;
 
