@@ -38,7 +38,7 @@ typedef struct _lista {
 
 lista_t* lista_inicia(void);
 lista_t* lista_nesimo(lista_t* l, int n);
-lista_t* lista_adiciona(lista_t* l, char* v);
+lista_t* lista_adiciona(lista_t* l);
 lista_t* lista_remove(lista_t* l, int n);
 lista_t* lista_libera(lista_t* l);
 int lista_tamanho(lista_t* l);

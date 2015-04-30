@@ -234,7 +234,6 @@ void texto_comando_salvar(texto_t* txt)
 void texto_comando_editar(texto_t* txt)
 {
 	char* n, c;
-	int i;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");
 
@@ -255,8 +254,8 @@ void texto_comando_editar(texto_t* txt)
 	while (feof(f) != 0) {
 		c = fgetc(c);
 
-		if (c == "\n") {
-			l = lista_adiciona(txt->linhas, ""); continue;
+		if (c == '\n') {
+			l = lista_adiciona(txt->linhas); continue;
 		}
 
 		l->valor = strcat(l->valor, (char*) c);
@@ -274,7 +273,7 @@ void texto_comando_editar(texto_t* txt)
  */
 void texto_nova_linha(texto_t* txt)
 {
-	lista_adiciona(txt->linhas, "");
+	lista_adiciona(txt->linhas);
 	txt->lincur++;
 	txt->colcur = 0;
 }

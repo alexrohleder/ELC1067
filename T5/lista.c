@@ -53,11 +53,11 @@ lista_t* lista_nesimo(lista_t* l, int n)
 	} else return NULL;
 }
 
-lista_t* lista_adiciona(lista_t* l, char* c)
+lista_t* lista_adiciona(lista_t* l)
 {
 	lista_t* a = lista_nesimo(l, lista_tamanho(l));
 	lista_t* n = lista_inicia();
-	n->valor = c;
+	n->valor = "";
 	n->anterior = a;
 	a->proximo = n;
 
