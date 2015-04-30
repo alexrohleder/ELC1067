@@ -28,4 +28,95 @@
 #include "lista.h"
 #include "memo.h"
 
-/* implementa aqui sua estrutura lista_t duplamente encadeada */
+lista_t* lista_inicia(void)
+{
+	lista_t* l = (lista_t*) memo_aloca(sizeof(lista_t));
+
+	l->proximo = NULL;
+	l->anterior = NULL;
+	l->valor = "";
+
+	return l;
+}
+
+lista_t* lista_nesimo(lista_t* l, int n)
+{
+	if (lista_valida(l)) {
+		lista* a = l;
+		int i = 0;
+
+		while (a->proximo != NULL && i < n) {
+			a = a->proximo; i++;
+		}
+
+		   return a;
+	} else return NULL;
+}
+
+lista_t* lista_adiciona(lista_t* l, char* c)
+{
+	lista_t* a = lista_nesimo(l, lista_tamanho(l));
+	lista_t* n = lista_inicia();
+	n->valor = c;
+	n->anterior = a;
+	a->proximo = n;
+
+	return n;
+}
+
+lista_t* lista_remove(lista_t* l, int n)
+{
+	lista_t* u = lista_nesimo(l, n);
+
+	if (u != NULL) {
+		lista_t* a = u->anterior;
+		lista_t* p = u->proximo;
+
+		a->proximo = p;
+		p->anterior = a;
+
+		memo_libera(u);
+
+		   return l;
+	} else return u;
+}
+
+void lista_libera(lista_t* l)
+{
+	if (lista_valida(l)) {
+		while (l->proximo != NULL)
+		{
+			memo_libera(l->anterior);
+			l = l->proximo;
+		}
+
+		memo_libera(l);
+	}
+}
+
+bool lista_valida(lista_t* l)
+{
+	return l != NULL;
+}
+
+int lista_tamanho(lista_t* l)
+{
+	if (lista_valida(l)) {
+		lista* a = l;
+		int i = 0;
+
+		while (a->proximo != NULL) {
+			a = a->proximo; i++;
+		}
+
+		   return i;
+	} else return 0;
+}
+
+char* lista_valor(lista_t* l, int n)
+{
+	if (lista_valida(l)) {
+		lista* a = lista_nesimo(l, n);
+		return a->valor;
+	} else return NULL ;
+}
