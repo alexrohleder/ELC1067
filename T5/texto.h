@@ -32,11 +32,8 @@
 
 typedef struct {
 	char *nome;      // nome do arquivo sendo editado.
-	int nlin;        // numero de linhas no texto (numero de elementos atualmente em linhas).
 	int lincur;      // linha onde esta o cursor (comeca em 0).
 	int colcur;      // coluna onde esta o cursoe na linha acima.
-	int lin1;        // linha do texto mostrada na primeira linha da tela.
-	int col1;        // coluna do texto mostrada na primeira coluna da tela.
 	lista_t* linhas; // lista de linhas do arquivo.
 	tela_t tela;     // tela do editor.
 } texto_t;

@@ -50,11 +50,8 @@ texto_t* texto_inicia(void)
 	tela_inicializa(&txt->tela, txt_tam, "Trabalho T5");
 	tela_limpa(&txt->tela);
 
-	txt->nlin   = 0;
 	txt->lincur = 0;
 	txt->colcur = 0;
-	txt->lin1   = 0;
-	txt->col1   = 0;
 	txt->linhas = lista_inicia();
 
 	return txt;
@@ -308,9 +305,12 @@ void texto_remove_char(texto_t* txt)
 		}
 	} else {
 		lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
-		int i = strlen(l->valor); // último caracter, \0
-		l->valor[i - 1] = 0; // Penúltimo caracter vira o \0
+
 		txt->colcur--;
+
+		// Removendo o caracter desejado
+		// @see http://stackoverflow.com/questions/5457608/how-to-remove-a-character-from-a-string-in-c
+		memmove(&l->valor, &l->valor[txt->colcur + 1], strlen(l->valor) - txt->colcur);
 	}
 }
 

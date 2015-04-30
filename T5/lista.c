@@ -55,9 +55,13 @@ lista_t* lista_nesimo(lista_t* l, int n)
 
 lista_t* lista_adiciona(lista_t* l)
 {
-	lista_t* a = lista_nesimo(l, lista_tamanho(l));
+	int n      = lista_tamanho(l);
+	lista_t* a = lista_nesimo(l, n);
 	lista_t* n = lista_inicia();
-	n->valor = "";
+
+	// Adicionando o número da lista logo ao início.
+	sprintf(n->valor, "%d. ", n);
+
 	n->anterior = a;
 	a->proximo = n;
 
