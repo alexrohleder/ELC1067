@@ -249,18 +249,17 @@ void texto_comando_editar(texto_t* txt)
 		printf("Não foi possível abrir o arquivo \"%s\".", n); return;
 	}
 
-	lista_t* l = txt->linhas;
-
 	while (feof(f) != 0) {
 		c = fgetc(c);
 
 		if (c == '\n') {
-			l = lista_adiciona(txt->linhas); continue;
+			lista_adiciona(txt->linhas); continue;
 		}
 
-		l->valor = strcat(l->valor, (char*) c);
+		texto_insere_char(txt, c);
 	}
 
+	// move o cursor para o início do texto.
 	txt->colcur = 0;
 	txt->lincur = 0;
 }
@@ -285,7 +284,7 @@ void texto_nova_linha(texto_t* txt)
  * @param  text_t
  * @return void
  */
-void texto_apaga_caracter(texto_t* txt)
+void texto_remove_char(texto_t* txt)
 {
 	if (txt->colcur == 0) {
 		if (txt->lincur > 0) {
@@ -298,6 +297,21 @@ void texto_apaga_caracter(texto_t* txt)
 		l->valor[i - 1] = 0; // Penúltimo caracter vira o \0
 		txt->colcur--;
 	}
+}
+
+/**
+ * Adiciona um caracter a linha atual.
+ *
+ * @param  texto_t, int
+ * @return void
+ */
+void texto_insere_char(texto_t* txt, int c)
+{
+	char* caracter;
+
+	sprintf(caracter, "%s", c);
+
+	txt->linhas->valor = strcat(txt->linhas->valor, caracter);
 }
 
 /**
@@ -347,13 +361,15 @@ bool texto_processa_comandos(texto_t* txt)
 
 		// Remove o último caracter.
 		case ALLEGRO_KEY_BACKSPACE: 
-			texto_apaga_caracter(txt); break;
+			texto_remove_char(txt); break;
 
 		// Quebra a linha.
 		case ALLEGRO_KEY_ENTER:
 		case ALLEGRO_KEY_PAD_ENTER: 
 			texto_nova_linha(txt); break;
 	}
+
+	texto_insere_char(txt, tecla);
 
 	return true;
 }
