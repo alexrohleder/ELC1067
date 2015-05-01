@@ -91,12 +91,19 @@ tela_t* texto_tela(texto_t* txt)
  */
 void texto_desenha_cursor_tela(texto_t* txt)
 {
-	cor_t cor = {1.0, 1.0, 1.0}; // branco.
-	tamanho_t t; // tamanho do texto.
-	ponto_t p1, p2; // pontos iniciais e finais da escrita
-	int tam = lista_tamanho(txt->linhas[txt->lincur]); // tamanho da linha atual.
-	char* substr[tam]; // string com o tamanho das letras até o cursor.
+	// cor do cursor, padrão: branco(1, 1, 1).
+	cor_t cor = {1.0, 1.0, 1.0}; 
+	// tamanho do texto.
+	tamanho_t t; 
+	// pontos iniciais e finais da escrita
+	ponto_t p1, p2; 
+	// tamanho da linha atual.
+	int tam = lista_tamanho(txt->linhas[txt->lincur]); 
+	// string com o tamanho das letras até o cursor.
+	char* substr[tam]; 
 
+	// Setando dinâmicamente o \0 no final da string
+	// Copiando toda a string anterior ao cursor
 	memset(substr, '\0', tam);
 	strncpy(substr, txt->content, txt->colcur * sizeof(char));
 	t = tela_tamanho_texto(txt->tela, substr);
@@ -196,7 +203,7 @@ void texto_escreve_tela(text_t* txt, char* c)
 void texto_comando_salvar(texto_t* txt)
 {
 	char* n,  o;
-	int t, i, j;
+	int i, j;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
 
@@ -213,6 +220,9 @@ void texto_comando_salvar(texto_t* txt)
 		o = strcat(o, lista_valor(txt->linhas, j));
 		o = strcat(o, "\n");
 	}
+
+	// Removendo o último \n e encerrando a string.
+	o[strlen(o) - 1] = '\0';
 
 	// Gravando e fechando o arquivo final.
 	// note que se o arquivo já existir a
@@ -250,10 +260,8 @@ void texto_comando_editar(texto_t* txt)
 		c = fgetc(c);
 
 		if (c == '\n') {
-			lista_adiciona(txt->linhas); continue;
-		}
-
-		texto_insere_char(txt, c);
+			lista_adiciona(txt->linhas);
+		} else texto_insere_char(txt, c);
 	}
 
 	// move o cursor para o início do texto.

@@ -59,9 +59,6 @@ lista_t* lista_adiciona(lista_t* l)
 	lista_t* a = lista_nesimo(l, n);
 	lista_t* n = lista_inicia();
 
-	// Adicionando o número da lista logo ao início.
-	sprintf(n->valor, "%d. ", n);
-
 	n->anterior = a;
 	a->proximo = n;
 
