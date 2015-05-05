@@ -65,9 +65,9 @@ texto_t* texto_inicia(void)
  */
 void texto_destroi(texto_t* txt)
 {
+	lista_libera(txt->linhas);
 	tela_limpa(&txt->tela);
 	tela_finaliza(&txt->tela);
-	lista_libera(&txt->linhas);
 	memo_libera(txt);
 }
 
@@ -96,16 +96,18 @@ void texto_desenha_cursor_tela(texto_t* txt)
 	// tamanho do texto.
 	tamanho_t t; 
 	// pontos iniciais e finais da escrita
-	ponto_t p1, p2; 
+	ponto_t p1, p2;
+	// lista atual
+	lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
 	// tamanho da linha atual.
-	int tam = lista_tamanho(txt->linhas[txt->lincur]); 
+	int tam = lista_tamanho(l); 
 	// string com o tamanho das letras até o cursor.
-	char* substr[tam]; 
+	char* substr; 
 
-	// Setando dinâmicamente o \0 no final da string
+	// Setando dinâmicamente o \0 no final da sar *dest, const tring
 	// Copiando toda a string anterior ao cursor
 	memset(substr, '\0', tam);
-	strncpy(substr, txt->content, txt->colcur * sizeof(char));
+	strncpy(substr, l->valor, txt->colcur * sizeof(char));
 	t = tela_tamanho_texto(txt->tela, substr);
 
 	// Para desenhar o cursor será feita uma linha de p1 até p2
@@ -211,7 +213,7 @@ void texto_comando_salvar(texto_t* txt)
 	// caso não exista o arquivo a permissão
 	// "a" garante que ele seja criado.
 	scanf("%s", n);
-	FILE *f = fopen(n, "ab+");
+	FILE *f = fopen(n, "w");
 
 	// Gerando o output com a concatenação
 	// do texto de todas as linhas.
@@ -319,6 +321,8 @@ void texto_remove_char(texto_t* txt)
 		// Removendo o caracter desejado
 		// @see http://stackoverflow.com/questions/5457608/how-to-remove-a-character-from-a-string-in-c
 		memmove(&l->valor, &l->valor[txt->colcur + 1], strlen(l->valor) - txt->colcur);
+
+		// liberar a ultima posição.
 	}
 }
 
