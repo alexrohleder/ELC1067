@@ -263,7 +263,9 @@ void texto_comando_salvar(texto_t* txt)
 		// com o valor da linha.
 		o = strcat(o, a);
 		o = strcat(o, "\n");
-	} while (j < i);
+
+		j++;
+	} while (j < i - 1);
 
 	// Removendo o último \n e encerrando a string.
 	o[strlen(o) - 1] = '\0';
