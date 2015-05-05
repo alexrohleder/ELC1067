@@ -47,9 +47,12 @@ texto_t* texto_inicia(void)
 	texto_t*  txt = (texto_t*) memo_aloca(sizeof(texto_t));
 	tamanho_t txt_tam = {600, 400};
 	
-	tela_inicializa(&txt->tela, txt_tam, "Trabalho T5");
-	tela_limpa(&txt->tela);
+	tela_inicializa(txt->tela, txt_tam, "Trabalho T5");
+	tela_limpa(txt->tela);
 
+	txt->lin1   = 0;
+	txt->col1   = 0;
+	txt->nlin   = 0;
 	txt->lincur = 0;
 	txt->colcur = 0;
 	txt->linhas = lista_inicia();
@@ -66,8 +69,8 @@ texto_t* texto_inicia(void)
 void texto_destroi(texto_t* txt)
 {
 	lista_libera(txt->linhas);
-	tela_limpa(&txt->tela);
-	tela_finaliza(&txt->tela);
+	tela_limpa(txt->tela);
+	tela_finaliza(txt->tela);
 	memo_libera(txt);
 }
 
@@ -80,7 +83,7 @@ void texto_destroi(texto_t* txt)
 tela_t* texto_tela(texto_t* txt)
 {
 	assert( txt != NULL );
-	return &txt->tela;
+	return txt->tela;
 }
 
 /**
@@ -122,6 +125,26 @@ void texto_desenha_cursor_tela(texto_t* txt)
 }
 
 /**
+ * Pega uma substring de uma linha, a substring corresponde ao
+ * texto da linha a partir da primeira coluna.
+ *
+ * @param  string
+ * @param  integer
+ * @return string
+ */
+char* texto_corrige(char* str, int pos)
+{
+	int len = strlen(str);
+	char* buffer = "";
+
+	if (pos < len) {
+		strncpy(buffer, str + pos, len - pos);
+	}
+
+	return buffer;
+}
+
+/**
  * Desenha todas as linhas e o cursor do editor.
  *
  * @param  text_t
@@ -137,8 +160,8 @@ void texto_desenha_tela(texto_t* txt)
 	
 	// Limpando a tela a cada reescrita.
 	// e definindo que a cor a ser usada.
-	tela_limpa(&txt->tela);
-	tela_cor(&txt->tela, cor);
+	tela_limpa(txt->tela);
+	tela_cor(txt->tela, cor);
 
 	// Pegando o número de linhas para desenhar.
 	// Toda linha vai começar no p.X = 1.
@@ -149,9 +172,14 @@ void texto_desenha_tela(texto_t* txt)
 	// p.y será o tamanho da linha multiplicado pelo número dela.
 	for (i = 0; i < j; i++) {
 		aux = lista_valor(txt->linhas, i);
-		t = tela_tamanho_texto(aux);
+
+		// Caso o ponteiro já tenha ultrapassado o limite da tela
+		// move o texto de forma correspondente ao ponteiro.
+		aux = texto_corrige(aux, txt->col1);
+
+		t   = tela_tamanho_texto(aux);
 		p.y = (i - 1) * t.alt + 1;
-		tela_texto(&txt->tela, p, aux);
+		tela_texto(txt->tela, p, aux);
 	}
 
 	texto_desenha_cursor_tela(txt);
@@ -166,7 +194,7 @@ void texto_desenha_tela(texto_t* txt)
 void texto_atualiza_tela(texto_t* txt)
 {
 	texto_desenha_tela(txt);
-	tela_mostra(texto_tela(txt));
+	tela_mostra(txt->tela);
 	tela_espera(30);
 }
 
@@ -190,8 +218,8 @@ void texto_escreve_tela(text_t* txt, char* c)
 
 	// Limpa a tela e manda uma mensagem requisitando
 	// que um nome para o arquivo seja definido.
-	tela_limpa(&txt->tela);
-	tela_texto(&txt->tela, p, c);
+	tela_limpa(txt->tela);
+	tela_texto(txt->tela, p, c);
 }
 
 /**
@@ -204,8 +232,8 @@ void texto_escreve_tela(text_t* txt, char* c)
  */
 void texto_comando_salvar(texto_t* txt)
 {
-	char* n,  o;
-	int i, j;
+	char*  n, o, a;
+	int i, j, k;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
 
@@ -215,13 +243,27 @@ void texto_comando_salvar(texto_t* txt)
 	scanf("%s", n);
 	FILE *f = fopen(n, "w");
 
+	i = lista_tamanho(txt->linhas);
+	j = 0;
+
+	// Fazendo a alocação inicial do output.
+	// A cada nova linha este sera realocado.
+	o = (char*) memo_aloca(1);
+
 	// Gerando o output com a concatenação
 	// do texto de todas as linhas.
-	i = lista_tamanho(txt->linhas);
-	for (j = 0; j < i; j++) {
-		o = strcat(o, lista_valor(txt->linhas, j));
+	do {
+		a = lista_valor(txt->linhas, j);
+
+		// Realocando o tamanho do output para comportar a nova linha
+		// mais uma posição para o \n...
+		o = (char*) memo_realoca(o, sizeof(o) + sizeof(a) + 1);
+
+		// Utilizando o strcat para concatenar o output atual
+		// com o valor da linha.
+		o = strcat(o, a);
 		o = strcat(o, "\n");
-	}
+	} while (j < i);
 
 	// Removendo o último \n e encerrando a string.
 	o[strlen(o) - 1] = '\0';
@@ -254,21 +296,21 @@ void texto_comando_editar(texto_t* txt)
 	// caso não o encontre ou não tenha permissão
 	// para leitura, apenas segue com a execução 
 	// mostrando um erro no terminal.
-	if (f == NULL) {
-		printf("Não foi possível abrir o arquivo \"%s\".", n); return;
+	if (f != NULL) {
+		printf("Não foi possível abrir o arquivo \"%s\".", n);
+	} else {
+		while (feof(f) != 0) {
+			c = fgetc(c);
+
+			if (c == '\n') {
+				lista_adiciona(txt->linhas);
+			} else texto_insere_char(txt, c);
+		}
+
+		// move o cursor para o início do texto.
+		txt->colcur = 0;
+		txt->lincur = 0;
 	}
-
-	while (feof(f) != 0) {
-		c = fgetc(c);
-
-		if (c == '\n') {
-			lista_adiciona(txt->linhas);
-		} else texto_insere_char(txt, c);
-	}
-
-	// move o cursor para o início do texto.
-	txt->colcur = 0;
-	txt->lincur = 0;
 }
 
 /**
@@ -410,6 +452,9 @@ bool texto_processa_comandos(texto_t* txt)
 void texto_move_esq(texto_t* txt)
 {
 	if (txt->colcur > 0) {
+		if (txt->colcur == txt->col1) {
+			txt->col1--;
+		}
 		txt->colcur--;
 	}
 }
@@ -436,6 +481,9 @@ void texto_move_dir(texto_t* txt)
 void texto_move_cima(texto_t* txt)
 {
 	if (txt->lincur > 0) {
+		if (txt->lincur == txt->lin1) {
+			txt->lin1--;
+		}
 		txt->lincur--;
 	}
 }
