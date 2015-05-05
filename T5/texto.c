@@ -137,7 +137,14 @@ char* texto_corrige(char* str, int pos)
 	int len = strlen(str);
 	char* buffer = "";
 
+	// Caso a linha a ser corrigida tenha um tamanho maior que a 
+	// posição da início.
 	if (pos < len) {
+		// Aloca um buffer com tamanho de caracteres a partir do
+		// offset até o final do texto da linha.
+		buffer = (char*) memo_aloca(sizeof(char) * (len - pos));
+		// Copia o texto da linha a partir de "pos" até "len - pos"
+		// ou seja do offset até o final da string.
 		strncpy(buffer, str + pos, len - pos);
 	}
 
@@ -232,7 +239,7 @@ void texto_escreve_tela(text_t* txt, char* c)
  */
 void texto_comando_salvar(texto_t* txt)
 {
-	char*  n, o, a;
+	char*  n, o, v;
 	int i, j, k;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
@@ -253,15 +260,15 @@ void texto_comando_salvar(texto_t* txt)
 	// Gerando o output com a concatenação
 	// do texto de todas as linhas.
 	do {
-		a = lista_valor(txt->linhas, j);
+		v = lista_valor(txt->linhas, j);
 
 		// Realocando o tamanho do output para comportar a nova linha
 		// mais uma posição para o \n...
-		o = (char*) memo_realoca(o, sizeof(o) + sizeof(a) + sizeof(char));
+		o = (char*) memo_realoca(o, sizeof(o) + sizeof(v) + sizeof(char));
 
 		// Utilizando o strcat para concatenar o output atual
 		// com o valor da linha.
-		o = strcat(o, a);
+		o = strcat(o, v);
 		o = strcat(o, "\n");
 
 		j++;
