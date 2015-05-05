@@ -34,7 +34,7 @@ lista_t* lista_inicia(void)
 
 	l->proximo = NULL;
 	l->anterior = NULL;
-	l->valor = "";
+	l->valor = (char*) memo_aloca(sizeof(char));
 
 	return l;
 }

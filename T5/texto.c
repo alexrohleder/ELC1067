@@ -248,7 +248,7 @@ void texto_comando_salvar(texto_t* txt)
 
 	// Fazendo a alocação inicial do output.
 	// A cada nova linha este sera realocado.
-	o = (char*) memo_aloca(1);
+	o = (char*) memo_aloca(sizeof(char));
 
 	// Gerando o output com a concatenação
 	// do texto de todas as linhas.
@@ -257,7 +257,7 @@ void texto_comando_salvar(texto_t* txt)
 
 		// Realocando o tamanho do output para comportar a nova linha
 		// mais uma posição para o \n...
-		o = (char*) memo_realoca(o, sizeof(o) + sizeof(a) + 1);
+		o = (char*) memo_realoca(o, sizeof(o) + sizeof(a) + sizeof(char));
 
 		// Utilizando o strcat para concatenar o output atual
 		// com o valor da linha.
@@ -276,6 +276,9 @@ void texto_comando_salvar(texto_t* txt)
 	// com o valor atual.
 	fprintf(f, "%s", o);
 	fclose(f);
+
+	// Sempre liberar memória :-)
+	memo_libera(o);
 }
 
 /**
@@ -366,7 +369,9 @@ void texto_remove_char(texto_t* txt)
 		// @see http://stackoverflow.com/questions/5457608/how-to-remove-a-character-from-a-string-in-c
 		memmove(&l->valor, &l->valor[txt->colcur + 1], strlen(l->valor) - txt->colcur);
 
-		// liberar a ultima posição.
+		// Realocando a memória para o tamanho da string
+		// Necessário pois o último caracter ficará vazio após a exclusão.
+		memo_realoca(l->valor, strlen(l->valor));
 	}
 }
 
@@ -380,8 +385,11 @@ void texto_insere_char(texto_t txt, int c)
 {
 	char* caracter;
 
+	// Converte o caracter para um char*, requisito da função strcat.
 	sprintf(caracter, "%s", c);
 
+	// Reloca a memória para caber o novo caracter.
+	txt->linhas->valor = (char*) memo_realoca(txt->linhas->valor, sizeof(txt->linhas->valor) + sizeof(char));
 	txt->linhas->valor = strcat(txt->linhas->valor, caracter);
 }
 
