@@ -272,6 +272,9 @@ void texto_comando_salvar(texto_t* txt)
 		o = strcat(o, "\n");
 
 		j++;
+		
+		// A linha deve ser verificada com o número de linhas - 1
+		// por causa da ordem de execução do dowhile
 	} while (j < i - 1);
 
 	// Removendo o último \n e encerrando a string.
