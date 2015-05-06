@@ -35,6 +35,9 @@
 #include "memo.h"
 #include "lista.h"
 
+#define TEXTO_LARGURA 600
+#define TEXTO_ALTURA 400
+
 /**
  * Inicializa o texto, criando sua estrutura e seus valores padrões,
  * tais como linhas e suas respectivas listas.
@@ -45,7 +48,7 @@
 texto_t* texto_inicia(void)
 {
 	texto_t*  txt = (texto_t*) memo_aloca(sizeof(texto_t));
-	tamanho_t txt_tam = {600, 400};
+	tamanho_t txt_tam = {TEXTO_LARGURA, TEXTO_ALTURA};
 	
 	tela_inicializa(txt->tela, txt_tam, "Trabalho T5");
 	tela_limpa(txt->tela);
@@ -162,8 +165,9 @@ void texto_desenha_tela(texto_t* txt)
 	cor_t cor = {1.0, 1.0, 1.0};
 	tamanho_t t;
 	ponto_t p;
-	char* aux;
-	int i, j;
+	char* valor_texto;
+	char caracter;
+	int i, j, linhas, colunas;
 	
 	// Limpando a tela a cada reescrita.
 	// e definindo que a cor a ser usada.
@@ -172,21 +176,41 @@ void texto_desenha_tela(texto_t* txt)
 
 	// Pegando o número de linhas para desenhar.
 	// Toda linha vai começar no p.X = 1.
-	j = lista_tamanho(txt->linhas);
+	linhas = lista_tamanho(txt->linhas);
 	p.x = 1;
 
 	// Varrendo linha por linha e as desenhando.
-	// p.y será o tamanho da linha multiplicado pelo número dela.
-	for (i = 0; i < j; i++) {
-		aux = lista_valor(txt->linhas, i);
+	// Desenha apenas o que couber na tela, com referência
+	// sobre o cursor e col1 e lin1.
+	for (i = 0; i < linhas; i++) {
+		// p.y será o tamanho da linha multiplicado pelo número dela.
+		// continua desenhando enquanto a linha couber na tela.
+		p.y = (i - 1) * t.alt + 1;
+
+		if (p.y > TEXTO_ALTURA) {
+			break;
+		}
+
+		valor_texto = lista_valor(txt->linhas, i);
 
 		// Caso o ponteiro já tenha ultrapassado o limite da tela
 		// move o texto de forma correspondente ao ponteiro.
-		aux = texto_corrige(aux, txt->col1);
+		valor_texto = texto_corrige(valor_texto, txt->col1);
 
-		t   = tela_tamanho_texto(aux);
-		p.y = (i - 1) * t.alt + 1;
-		tela_texto(txt->tela, p, aux);
+		colunas  = strlen(valor_texto);
+
+		// Continua desenhando caracter por caracter até que
+		// encontre o final da tela horizontal.
+		for (j = 0; j <= colunas; j++) {
+			if (p.x > TEXTO_LARGURA) {
+				break;
+			}
+
+			caracter = aux[j];
+			t = tela_tamanho_texto(caracter);
+			p.x = p.x + t.larg;
+			tela_texto(txt->tela, p, caracter);
+		}
 	}
 
 	texto_desenha_cursor_tela(txt);
