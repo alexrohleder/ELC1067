@@ -34,7 +34,9 @@ lista_t* lista_inicia(void)
 
 	l->proximo = NULL;
 	l->anterior = NULL;
+
 	l->valor = (char*) memo_aloca(sizeof(char));
+	l->valor[0] = '\0';
 
 	return l;
 }
@@ -85,13 +87,12 @@ lista_t* lista_remove(lista_t* l, int n)
 void lista_libera(lista_t* l)
 {
 	if (lista_valida(l)) {
-		while (l->proximo != NULL)
-		{
-			memo_libera(l->anterior);
-			l = l->proximo;
-		}
-
-		memo_libera(l);
+		do {
+			lista_t* p = l->proximo;
+			
+			memo_libera(l->valor);
+			memo_libera(l);
+		} while (p != NULL);
 	}
 }
 
