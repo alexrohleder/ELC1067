@@ -102,8 +102,8 @@ void tela_inicializa(tela_t* tela, tamanho_t tam, char* nome)
     al_set_window_title(tela->display, nome);
 
     /* cria contextos grafico */
-    tela->ac_fundo =  al_map_rgb(255, 255, 255);
-    tela->ac_cor =  al_map_rgb(0, 0, 0);
+    tela->ac_fundo =  al_map_rgb(0, 0, 0);
+    tela->ac_cor =  al_map_rgb(255, 255, 255);
     
     /* instala o driver de mouse e teclado */
     al_install_mouse();

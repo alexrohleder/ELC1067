@@ -40,8 +40,9 @@ lista_t* lista_inicia(void);
 lista_t* lista_nesimo(lista_t* l, int n);
 lista_t* lista_adiciona(lista_t* l);
 lista_t* lista_remove(lista_t* l, int n);
-lista_t* lista_libera(lista_t* l);
+void lista_libera(lista_t* l);
 int lista_tamanho(lista_t* l);
 char* lista_valor(lista_t* l, int n);
+bool lista_valida(lista_t* l);
 
 #endif /* _LISTA_H_ */

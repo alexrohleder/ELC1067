@@ -49,7 +49,8 @@ texto_t* texto_inicia(void)
 {
 	texto_t*  txt = (texto_t*) memo_aloca(sizeof(texto_t));
 	tamanho_t txt_tam = {TEXTO_LARGURA, TEXTO_ALTURA};
-	
+	txt->tela = (tela_t*) memo_aloca(sizeof(tela_t));
+
 	tela_inicializa(txt->tela, txt_tam, "Trabalho T5");
 	tela_limpa(txt->tela);
 
@@ -98,7 +99,7 @@ tela_t* texto_tela(texto_t* txt)
 void texto_desenha_cursor_tela(texto_t* txt)
 {
 	// cor do cursor, padrão: branco(1, 1, 1).
-	cor_t cor = {1.0, 1.0, 1.0}; 
+	cor_t cor = {1.0, 1.0, 1.0};
 	// tamanho do texto.
 	tamanho_t t; 
 	// pontos iniciais e finais da escrita
@@ -108,7 +109,7 @@ void texto_desenha_cursor_tela(texto_t* txt)
 	// tamanho da linha atual.
 	int tam = lista_tamanho(l); 
 	// string com o tamanho das letras até o cursor.
-	char* substr; 
+	char substr[tam];
 
 	// Setando dinâmicamente o \0 no final da sar *dest, const tring
 	// Copiando toda a string anterior ao cursor
@@ -123,8 +124,8 @@ void texto_desenha_cursor_tela(texto_t* txt)
 	p2.y = p1.y + t.alt;
 	p1.x = p2.x = t.larg + 1;
 
-	tela_cor(&txt->tela, cor);
-	tela_linha(&txt->tela, p1, p2);
+	tela_cor(txt->tela, cor);
+	tela_linha(txt->tela, p1, p2);
 }
 
 /**
@@ -165,8 +166,7 @@ void texto_desenha_tela(texto_t* txt)
 	cor_t cor = {1.0, 1.0, 1.0};
 	tamanho_t t;
 	ponto_t p;
-	char* valor_texto;
-	char caracter;
+	char* valor_texto, caracter[1];
 	int i, j, linhas, colunas;
 	
 	// Limpando a tela a cada reescrita.
@@ -206,8 +206,8 @@ void texto_desenha_tela(texto_t* txt)
 				break;
 			}
 
-			caracter = aux[j];
-			t = tela_tamanho_texto(caracter);
+			caracter[0] = valor_texto[j];
+			t = tela_tamanho_texto(txt->tela, caracter);
 			p.x = p.x + t.larg;
 			tela_texto(txt->tela, p, caracter);
 		}
@@ -236,14 +236,14 @@ void texto_atualiza_tela(texto_t* txt)
  * @param  text_t, char*
  * @return void
  */
-void texto_escreve_tela(text_t* txt, char* c)
+void texto_escreve_tela(texto_t* txt, char* c)
 {
 	ponto_t p;
 	tamanho_t t;
 
 	// criando um ponto que represente o tamanho
 	// de uma linha.
-	t = tela_tamanho_texto(c);
+	t = tela_tamanho_texto(txt->tela, c);
 	p.x = 1;
 	p.y = t.alt + 1;
 
@@ -263,8 +263,8 @@ void texto_escreve_tela(text_t* txt, char* c)
  */
 void texto_comando_salvar(texto_t* txt)
 {
-	char*  n, o, v;
-	int i, j, k;
+	char n[255], *o, *v;
+	int i, j;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
 
@@ -301,8 +301,6 @@ void texto_comando_salvar(texto_t* txt)
 		// por causa da ordem de execução do dowhile
 	} while (j < i - 1);
 
-	// Removendo o último \n e encerrando a string.
-	o[strlen(o) - 1] = '\0';
 
 	// Gravando e fechando o arquivo final.
 	// note que se o arquivo já existir a
@@ -323,7 +321,8 @@ void texto_comando_salvar(texto_t* txt)
  */
 void texto_comando_editar(texto_t* txt)
 {
-	char* n, c;
+	char n[255];
+	int c;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");
 
@@ -339,7 +338,7 @@ void texto_comando_editar(texto_t* txt)
 		printf("Não foi possível abrir o arquivo \"%s\".", n);
 	} else {
 		while (feof(f) != 0) {
-			c = fgetc(c);
+			c = fgetc(f);
 
 			if (c == '\n') {
 				lista_adiciona(txt->linhas);
@@ -388,7 +387,7 @@ void texto_remove_char(texto_t* txt)
 			for (i = 0; i < n; i++) {
 				// Manipulando a linha excluida atravéz do ponteiro
 				// próximo, para seguir a interface de texto.h
-				texto_insere_char(txt, txt->linhas->proxima->valor[i]);
+				texto_insere_char(txt, txt->linhas->proximo->valor[i]);
 			}
 
 			// Remove a lista que sobrou
@@ -415,15 +414,15 @@ void texto_remove_char(texto_t* txt)
  * @param  texto_t, int
  * @return void
  */
-void texto_insere_char(texto_t txt, int c)
+void texto_insere_char(texto_t* txt, int c)
 {
-	char* caracter;
+	char caracter[1];
 
 	// Converte o caracter para um char*, requisito da função strcat.
-	sprintf(caracter, "%s", c);
+	sprintf(caracter, "%d", c);
 
 	// Reloca a memória para caber o novo caracter.
-	txt->linhas->valor = (char*) memo_realoca(txt->linhas->valor, sizeof(txt->linhas->valor) + sizeof(char));
+	txt->linhas->valor = (char*) memo_realoca(txt->linhas->valor, (strlen(txt->linhas->valor) * sizeof(char)) + (sizeof(char) * 2));
 	txt->linhas->valor = strcat(txt->linhas->valor, caracter);
 }
 
@@ -439,6 +438,10 @@ bool texto_processa_comandos(texto_t* txt)
 	int tecla = tela_tecla(texto_tela(txt));
 	int modificador = tela_tecla_modificador(texto_tela(txt));
 	
+	if (lista_tamanho(txt->linhas) == 0) {
+		texto_comando_editar(txt); return true;
+	}
+
 	if (modificador & ALLEGRO_KEYMOD_CTRL) {
 		switch (tecla) {
 			// CTRL + Q: Fecha o editor de texto.
@@ -480,9 +483,10 @@ bool texto_processa_comandos(texto_t* txt)
 		case ALLEGRO_KEY_ENTER:
 		case ALLEGRO_KEY_PAD_ENTER: 
 			texto_nova_linha(txt); break;
-	}
 
-	texto_insere_char(txt, tecla);
+		default:
+			texto_insere_char(txt, tecla); break;
+	}
 
 	return true;
 }

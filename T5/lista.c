@@ -25,6 +25,7 @@
  * SOFTWARE.
  */
 
+#include <stdbool.h>
 #include "lista.h"
 #include "memo.h"
 
@@ -44,7 +45,7 @@ lista_t* lista_inicia(void)
 lista_t* lista_nesimo(lista_t* l, int n)
 {
 	if (lista_valida(l)) {
-		lista* a = l;
+		lista_t* a = l;
 		int i = 0;
 
 		while (a->proximo != NULL && i < n) {
@@ -57,12 +58,12 @@ lista_t* lista_nesimo(lista_t* l, int n)
 
 lista_t* lista_adiciona(lista_t* l)
 {
-	int n      = lista_tamanho(l);
-	lista_t* a = lista_nesimo(l, n);
+	int i      = lista_tamanho(l);
+	lista_t* a = lista_nesimo(l, i);
 	lista_t* n = lista_inicia();
 
 	n->anterior = a;
-	a->proximo = n;
+	a->proximo  = n;
 
 	return n;
 }
@@ -87,8 +88,10 @@ lista_t* lista_remove(lista_t* l, int n)
 void lista_libera(lista_t* l)
 {
 	if (lista_valida(l)) {
+		lista_t* p;
+
 		do {
-			lista_t* p = l->proximo;
+			p = l->proximo;
 			
 			memo_libera(l->valor);
 			memo_libera(l);
@@ -104,7 +107,7 @@ bool lista_valida(lista_t* l)
 int lista_tamanho(lista_t* l)
 {
 	if (lista_valida(l)) {
-		lista* a = l;
+		lista_t* a = l;
 		int i = 0;
 
 		while (a->proximo != NULL) {
@@ -118,7 +121,7 @@ int lista_tamanho(lista_t* l)
 char* lista_valor(lista_t* l, int n)
 {
 	if (lista_valida(l)) {
-		lista* a = lista_nesimo(l, n);
+		lista_t* a = lista_nesimo(l, n);
 		return a->valor;
 	} else return NULL ;
 }
