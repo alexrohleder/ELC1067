@@ -25,11 +25,13 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
 #include <stdbool.h>
+
 #include "lista.h"
 #include "memo.h"
 
-lista_t* lista_inicia(void)
+lista_t* lista_cria(void)
 {
 	lista_t* l = (lista_t*) memo_aloca(sizeof(lista_t));
 
@@ -37,7 +39,7 @@ lista_t* lista_inicia(void)
 	l->anterior = NULL;
 
 	l->valor = (char*) memo_aloca(sizeof(char));
-	l->valor[0] = '\0';
+	*l->valor = '\0';
 
 	return l;
 }
@@ -60,7 +62,7 @@ lista_t* lista_adiciona(lista_t* l)
 {
 	int i      = lista_tamanho(l);
 	lista_t* a = lista_nesimo(l, i);
-	lista_t* n = lista_inicia();
+	lista_t* n = lista_cria();
 
 	n->anterior = a;
 	a->proximo  = n;

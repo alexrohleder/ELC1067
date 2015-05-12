@@ -38,6 +38,8 @@
 #define TEXTO_LARGURA 600
 #define TEXTO_ALTURA 400
 
+enum { nada, editando } estado;
+
 /**
  * Inicializa o texto, criando sua estrutura e seus valores padrões,
  * tais como linhas e suas respectivas listas.
@@ -87,6 +89,7 @@ void texto_destroi(texto_t* txt)
 tela_t* texto_tela(texto_t* txt)
 {
 	assert( txt != NULL );
+
 	return txt->tela;
 }
 
@@ -183,6 +186,10 @@ void texto_desenha_tela(texto_t* txt)
 	// Desenha apenas o que couber na tela, com referência
 	// sobre o cursor e col1 e lin1.
 	for (i = 0; i < linhas; i++) {
+
+		valor_texto = lista_valor(txt->linhas, i);
+		t = tela_tamanho_texto(valor_texto);
+
 		// p.y será o tamanho da linha multiplicado pelo número dela.
 		// continua desenhando enquanto a linha couber na tela.
 		p.y = (i - 1) * t.alt + 1;
@@ -191,12 +198,9 @@ void texto_desenha_tela(texto_t* txt)
 			break;
 		}
 
-		valor_texto = lista_valor(txt->linhas, i);
-
 		// Caso o ponteiro já tenha ultrapassado o limite da tela
 		// move o texto de forma correspondente ao ponteiro.
 		valor_texto = texto_corrige(valor_texto, txt->col1);
-
 		colunas  = strlen(valor_texto);
 
 		// Continua desenhando caracter por caracter até que
@@ -264,7 +268,7 @@ void texto_escreve_tela(texto_t* txt, char* c)
 void texto_comando_salvar(texto_t* txt)
 {
 	char n[255], *o, *v;
-	int i, j;
+	int i, j, k;
 
 	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
 
@@ -273,6 +277,10 @@ void texto_comando_salvar(texto_t* txt)
 	// "a" garante que ele seja criado.
 	scanf("%s", n);
 	FILE *f = fopen(n, "w");
+
+	if (f == NULL) {
+		printf("Não foi possível gravar este arquivo."); return;
+	}
 
 	i = lista_tamanho(txt->linhas);
 	j = 0;
@@ -290,10 +298,10 @@ void texto_comando_salvar(texto_t* txt)
 		// mais uma posição para o \n...
 		o = (char*) memo_realoca(o, sizeof(o) + sizeof(v) + sizeof(char));
 
-		// Utilizando o strcat para concatenar o output atual
-		// com o valor da linha.
-		o = strcat(o, v);
-		o = strcat(o, "\n");
+		k = strlen(o);
+
+		o[k] = "\n";
+		o[k - 1] = v;
 
 		j++;
 		
@@ -334,14 +342,14 @@ void texto_comando_editar(texto_t* txt)
 	// caso não o encontre ou não tenha permissão
 	// para leitura, apenas segue com a execução 
 	// mostrando um erro no terminal.
-	if (f != NULL) {
+	if (f == NULL) {
 		printf("Não foi possível abrir o arquivo \"%s\".", n);
 	} else {
-		while (feof(f) != 0) {
+		while (feof(f) == 0) {
 			c = fgetc(f);
 
 			if (c == '\n') {
-				lista_adiciona(txt->linhas);
+				   lista_adiciona(txt->linhas);
 			} else texto_insere_char(txt, c);
 		}
 
@@ -360,6 +368,8 @@ void texto_comando_editar(texto_t* txt)
 void texto_nova_linha(texto_t* txt)
 {
 	lista_adiciona(txt->linhas);
+
+	txt->nlin++;
 	txt->lincur++;
 	txt->colcur = 0;
 }
@@ -387,7 +397,7 @@ void texto_remove_char(texto_t* txt)
 			for (i = 0; i < n; i++) {
 				// Manipulando a linha excluida atravéz do ponteiro
 				// próximo, para seguir a interface de texto.h
-				texto_insere_char(txt, txt->linhas->proximo->valor[i]);
+				texto_insere_char(txt, lista_nesimo(txt->linhas, txt->lincur + 1)->valor[i]);
 			}
 
 			// Remove a lista que sobrou
@@ -416,14 +426,25 @@ void texto_remove_char(texto_t* txt)
  */
 void texto_insere_char(texto_t* txt, int c)
 {
-	char caracter[1];
-
-	// Converte o caracter para um char*, requisito da função strcat.
-	sprintf(caracter, "%d", c);
+	lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
+	int length = strlen(l->valor) + 1;
 
 	// Reloca a memória para caber o novo caracter.
-	txt->linhas->valor = (char*) memo_realoca(txt->linhas->valor, (strlen(txt->linhas->valor) * sizeof(char)) + (sizeof(char) * 2));
-	txt->linhas->valor = strcat(txt->linhas->valor, caracter);
+	l = (char*) memo_realoca(l, length * sizeof(char));
+	
+	l->valor[length] = '\0';
+	l->valor[length - 1] = c;
+}
+
+/**
+ * Converte o char do allegro para seu representante ascii
+ *
+ * @param  char
+ * @return char
+ */
+char texto_corrige_char(char c)
+{
+
 }
 
 /**
@@ -437,10 +458,6 @@ bool texto_processa_comandos(texto_t* txt)
 {
 	int tecla = tela_tecla(texto_tela(txt));
 	int modificador = tela_tecla_modificador(texto_tela(txt));
-	
-	if (lista_tamanho(txt->linhas) == 0) {
-		texto_comando_editar(txt); return true;
-	}
 
 	if (modificador & ALLEGRO_KEYMOD_CTRL) {
 		switch (tecla) {
@@ -450,10 +467,12 @@ bool texto_processa_comandos(texto_t* txt)
 
 			// CTRL + S: Salva em um arquivo todo o texto atual.
 			case ALLEGRO_KEY_S:
+				estado = nada;
 				texto_comando_salvar(txt); break;
 
 			// CTRL + E: Abre um arquivo no editor de texto.
 			case ALLEGRO_KEY_E:
+				estado = editando;
 				texto_comando_editar(txt); break;
 		}
 	}
@@ -474,18 +493,23 @@ bool texto_processa_comandos(texto_t* txt)
 		// Move o cursor pra baixo.
 		case ALLEGRO_KEY_DOWN:
 			texto_move_baixo(txt); break;
+	}
 
-		// Remove o último caracter.
-		case ALLEGRO_KEY_BACKSPACE: 
-			texto_remove_char(txt); break;
+	if (estado == editando) {
+		switch (tecla) {
+			// apaga o último  caracter
+			case ALLEGRO_KEY_BACKSPACE: 
+				texto_remove_char(txt); break;
 
-		// Quebra a linha.
-		case ALLEGRO_KEY_ENTER:
-		case ALLEGRO_KEY_PAD_ENTER: 
-			texto_nova_linha(txt); break;
+			// Quebra a linha.
+			case ALLEGRO_KEY_ENTER:
+			case ALLEGRO_KEY_PAD_ENTER: 
+				texto_nova_linha(txt); break;
 
-		default:
-			texto_insere_char(txt, tecla); break;
+			// Caso nada seja pego insere o char digitado
+			default:
+				texto_insere_char(txt, texto_corrige_char(tecla)); break;
+		}
 	}
 
 	return true;
@@ -500,10 +524,15 @@ bool texto_processa_comandos(texto_t* txt)
 void texto_move_esq(texto_t* txt)
 {
 	if (txt->colcur > 0) {
-		if (txt->colcur == txt->col1) {
+		if (txt->col1 > 0 and txt->colcur == txt->col1) {
 			txt->col1--;
 		}
 		txt->colcur--;
+	} else {
+		if (txt->lincur > 0) {
+			txt->lincur--;
+			txt->colcur = strlen(lista_nesimo(txt->linhas, txt->lincur));
+		}
 	}
 }
 
@@ -517,6 +546,11 @@ void texto_move_dir(texto_t* txt)
 {
 	if (txt->colcur < strlen(lista_valor(txt->linhas, txt->lincur))) {
 		txt->colcur++;
+	} else {
+		if (txt->lincur < lista_tamanho(txt->linhas)) {
+			txt->lincur++;
+			txt->colcur = 0;
+		}
 	}
 }
 

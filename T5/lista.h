@@ -36,6 +36,11 @@ typedef struct _lista {
 	struct _lista* anterior;
 } lista_t;
 
+typedef struct _lista_map {
+	struct _lista* primeiro;
+	struct _lista* ultimo;
+} lista_map_t;
+
 lista_t* lista_inicia(void);
 lista_t* lista_nesimo(lista_t* l, int n);
 lista_t* lista_adiciona(lista_t* l);
