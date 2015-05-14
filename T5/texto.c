@@ -110,7 +110,7 @@ void texto_desenha_cursor_tela(texto_t* txt)
 	// lista atual
 	lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
 	// tamanho da linha atual.
-	int tam = lista_tamanho(l); 
+	int tam = strlen(l->valor); 
 	// string com o tamanho das letras até o cursor.
 	char substr[tam];
 
@@ -125,7 +125,7 @@ void texto_desenha_cursor_tela(texto_t* txt)
 	// p2 o ponto inferior.
 	p1.y = txt->lincur * t.alt;
 	p2.y = p1.y + t.alt;
-	p1.x = p2.x = t.larg + 1;
+	p1.x = p2.x = t.larg*txt->colcur + 1;
 
 	tela_cor(txt->tela, cor);
 	tela_linha(txt->tela, p1, p2);
@@ -180,15 +180,15 @@ void texto_desenha_tela(texto_t* txt)
 	// Pegando o número de linhas para desenhar.
 	// Toda linha vai começar no p.X = 1.
 	linhas = lista_tamanho(txt->linhas);
-	p.x = 1;
 
 	// Varrendo linha por linha e as desenhando.
 	// Desenha apenas o que couber na tela, com referência
 	// sobre o cursor e col1 e lin1.
-	for (i = 0; i < linhas; i++) {
+	for (i = 1; i <= linhas; i++) {
+		p.x = 0;
 
-		valor_texto = lista_valor(txt->linhas, i);
-		t = tela_tamanho_texto(valor_texto);
+		valor_texto = lista_valor(txt->linhas, i - 1);
+		t = tela_tamanho_texto(txt->tela, valor_texto);
 
 		// p.y será o tamanho da linha multiplicado pelo número dela.
 		// continua desenhando enquanto a linha couber na tela.
@@ -242,6 +242,7 @@ void texto_atualiza_tela(texto_t* txt)
  */
 void texto_escreve_tela(texto_t* txt, char* c)
 {
+	cor_t cor = {1.0, 1.0, 1.0};
 	ponto_t p;
 	tamanho_t t;
 
@@ -254,7 +255,23 @@ void texto_escreve_tela(texto_t* txt, char* c)
 	// Limpa a tela e manda uma mensagem requisitando
 	// que um nome para o arquivo seja definido.
 	tela_limpa(txt->tela);
+	tela_cor(txt->tela, cor);
 	tela_texto(txt->tela, p, c);
+}
+
+/**
+ * Cria uma nova lista representante de uma linha.
+ *
+ * @param  text_t
+ * @return void
+ */
+void texto_nova_linha(texto_t* txt)
+{
+	lista_adiciona(txt->linhas);
+
+	txt->nlin++;
+	txt->lincur++;
+	txt->colcur = 0;
 }
 
 /**
@@ -267,10 +284,10 @@ void texto_escreve_tela(texto_t* txt, char* c)
  */
 void texto_comando_salvar(texto_t* txt)
 {
-	char n[255], *o, *v;
-	int i, j, k;
+	char n[255];
+	int i, j;
 
-	texto_escreve_tela(txt, "Qual o nome do arquivo?");	
+	printf("Qual o nome do arquivo?\n");	
 
 	// Le o nome do arquivo e tenta abri-lo
 	// caso não exista o arquivo a permissão
@@ -285,40 +302,14 @@ void texto_comando_salvar(texto_t* txt)
 	i = lista_tamanho(txt->linhas);
 	j = 0;
 
-	// Fazendo a alocação inicial do output.
-	// A cada nova linha este sera realocado.
-	o = (char*) memo_aloca(sizeof(char));
+	for (j = 0; j < i; j++) {
+		fprintf(f, "%s", lista_valor(txt->linhas, j));
+		fprintf(f, "%s", "\n");
+	}
 
-	// Gerando o output com a concatenação
-	// do texto de todas as linhas.
-	do {
-		v = lista_valor(txt->linhas, j);
+	printf("Arquivo Salvo com Sucesso.\n");
 
-		// Realocando o tamanho do output para comportar a nova linha
-		// mais uma posição para o \n...
-		o = (char*) memo_realoca(o, sizeof(o) + sizeof(v) + sizeof(char));
-
-		k = strlen(o);
-
-		o[k] = "\n";
-		o[k - 1] = v;
-
-		j++;
-		
-		// A linha deve ser verificada com o número de linhas - 1
-		// por causa da ordem de execução do dowhile
-	} while (j < i - 1);
-
-
-	// Gravando e fechando o arquivo final.
-	// note que se o arquivo já existir a
-	// escrita será feita como uma concatenação
-	// com o valor atual.
-	fprintf(f, "%s", o);
 	fclose(f);
-
-	// Sempre liberar memória :-)
-	memo_libera(o);
 }
 
 /**
@@ -332,7 +323,7 @@ void texto_comando_editar(texto_t* txt)
 	char n[255];
 	int c;
 
-	texto_escreve_tela(txt, "Qual o nome do arquivo?");
+	printf("Qual o nome do arquivo?\n");
 
 	// Requisita o nome do arquivo e tenta abri-lo 
 	// apenas para leitura.
@@ -349,7 +340,7 @@ void texto_comando_editar(texto_t* txt)
 			c = fgetc(f);
 
 			if (c == '\n') {
-				   lista_adiciona(txt->linhas);
+				   texto_nova_linha(txt);
 			} else texto_insere_char(txt, c);
 		}
 
@@ -357,21 +348,6 @@ void texto_comando_editar(texto_t* txt)
 		txt->colcur = 0;
 		txt->lincur = 0;
 	}
-}
-
-/**
- * Cria uma nova lista representante de uma linha.
- *
- * @param  text_t
- * @return void
- */
-void texto_nova_linha(texto_t* txt)
-{
-	lista_adiciona(txt->linhas);
-
-	txt->nlin++;
-	txt->lincur++;
-	txt->colcur = 0;
 }
 
 /**
@@ -427,13 +403,13 @@ void texto_remove_char(texto_t* txt)
 void texto_insere_char(texto_t* txt, int c)
 {
 	lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
-	int length = strlen(l->valor) + 1;
+	int length = strlen(l->valor) + 2;
 
 	// Reloca a memória para caber o novo caracter.
-	l = (char*) memo_realoca(l, length * sizeof(char));
+	l->valor = (char*) memo_realoca(l->valor, length * sizeof(char));
 	
-	l->valor[length] = '\0';
-	l->valor[length - 1] = c;
+	l->valor[length - 1] = '\0';
+	l->valor[length - 2] = c;
 }
 
 /**
@@ -444,7 +420,7 @@ void texto_insere_char(texto_t* txt, int c)
  */
 char texto_corrige_char(char c)
 {
-
+	return c;
 }
 
 /**
@@ -461,9 +437,6 @@ bool texto_processa_comandos(texto_t* txt)
 
 	if (modificador & ALLEGRO_KEYMOD_CTRL) {
 		switch (tecla) {
-			// CTRL + Q: Fecha o editor de texto.
-			case ALLEGRO_KEY_Q:
-				return false;
 
 			// CTRL + S: Salva em um arquivo todo o texto atual.
 			case ALLEGRO_KEY_S:
@@ -474,6 +447,10 @@ bool texto_processa_comandos(texto_t* txt)
 			case ALLEGRO_KEY_E:
 				estado = editando;
 				texto_comando_editar(txt); break;
+
+			// CTRL + Q: Fecha o editor de texto.
+			case ALLEGRO_KEY_Q:
+				return false;
 		}
 	}
 
@@ -524,14 +501,14 @@ bool texto_processa_comandos(texto_t* txt)
 void texto_move_esq(texto_t* txt)
 {
 	if (txt->colcur > 0) {
-		if (txt->col1 > 0 and txt->colcur == txt->col1) {
+		if (txt->col1 > 0 || txt->colcur == txt->col1) {
 			txt->col1--;
 		}
 		txt->colcur--;
 	} else {
 		if (txt->lincur > 0) {
 			txt->lincur--;
-			txt->colcur = strlen(lista_nesimo(txt->linhas, txt->lincur));
+			txt->colcur = strlen(lista_valor(txt->linhas, txt->lincur));
 		}
 	}
 }
@@ -545,7 +522,7 @@ void texto_move_esq(texto_t* txt)
 void texto_move_dir(texto_t* txt)
 {
 	if (txt->colcur < strlen(lista_valor(txt->linhas, txt->lincur))) {
-		txt->colcur++;
+		txt->col1++;
 	} else {
 		if (txt->lincur < lista_tamanho(txt->linhas)) {
 			txt->lincur++;

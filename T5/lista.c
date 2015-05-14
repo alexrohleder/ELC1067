@@ -31,7 +31,7 @@
 #include "lista.h"
 #include "memo.h"
 
-lista_t* lista_cria(void)
+lista_t* lista_inicia(void)
 {
 	lista_t* l = (lista_t*) memo_aloca(sizeof(lista_t));
 
@@ -62,7 +62,7 @@ lista_t* lista_adiciona(lista_t* l)
 {
 	int i      = lista_tamanho(l);
 	lista_t* a = lista_nesimo(l, i);
-	lista_t* n = lista_cria();
+	lista_t* n = lista_inicia();
 
 	n->anterior = a;
 	a->proximo  = n;
