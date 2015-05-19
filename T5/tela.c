@@ -211,7 +211,7 @@ void tela_processa_eventos(tela_t *tela)
     while(al_get_next_event(tela->queue, &event)) {
       switch (event.type) {
 	  /* tecla foi pressionada */
-	  /*case ALLEGRO_EVENT_KEY_DOWN: */
+	  case ALLEGRO_EVENT_KEY_DOWN:
 	  case ALLEGRO_EVENT_KEY_CHAR:
 	    {
 #if 0

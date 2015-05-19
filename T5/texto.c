@@ -40,6 +40,9 @@
 
 enum { nada, editando } estado;
 
+extern int allegro_404_char;
+
+
 /**
  * Inicializa o texto, criando sua estrutura e seus valores padrões,
  * tais como linhas e suas respectivas listas.
@@ -62,6 +65,7 @@ texto_t* texto_inicia(void)
 	txt->lincur = 0;
 	txt->colcur = 0;
 	txt->linhas = lista_inicia();
+
 
 	return txt;
 }
@@ -125,7 +129,7 @@ void texto_desenha_cursor_tela(texto_t* txt)
 	// p2 o ponto inferior.
 	p1.y = txt->lincur * t.alt;
 	p2.y = p1.y + t.alt;
-	p1.x = p2.x = t.larg*txt->colcur + 1;
+	p1.x = p2.x = t.larg + 1;
 
 	tela_cor(txt->tela, cor);
 	tela_linha(txt->tela, p1, p2);
@@ -180,12 +184,12 @@ void texto_desenha_tela(texto_t* txt)
 	// Pegando o número de linhas para desenhar.
 	// Toda linha vai começar no p.X = 1.
 	linhas = lista_tamanho(txt->linhas);
+	p.x = 0;
 
 	// Varrendo linha por linha e as desenhando.
 	// Desenha apenas o que couber na tela, com referência
 	// sobre o cursor e col1 e lin1.
 	for (i = 1; i <= linhas; i++) {
-		p.x = 0;
 
 		valor_texto = lista_valor(txt->linhas, i - 1);
 		t = tela_tamanho_texto(txt->tela, valor_texto);
@@ -213,8 +217,14 @@ void texto_desenha_tela(texto_t* txt)
 			caracter[0] = valor_texto[j];
 			t = tela_tamanho_texto(txt->tela, caracter);
 			p.x = p.x + t.larg;
-			tela_texto(txt->tela, p, caracter);
 		}
+
+		char* str[j];
+		memcpy(valor_texto, &valor_texto[0], j - 1);
+		str[j - 1] = '\0';
+
+		p.x = 0;
+		tela_texto(txt->tela, p, str);
 	}
 
 	texto_desenha_cursor_tela(txt);
@@ -336,12 +346,14 @@ void texto_comando_editar(texto_t* txt)
 	if (f == NULL) {
 		printf("Não foi possível abrir o arquivo \"%s\".", n);
 	} else {
-		while (feof(f) == 0) {
-			c = fgetc(f);
+		c = fgetc(f);
 
+		while (feof(f) == 0) {
 			if (c == '\n') {
 				   texto_nova_linha(txt);
 			} else texto_insere_char(txt, c);
+
+			c = fgetc(f);
 		}
 
 		// move o cursor para o início do texto.
@@ -402,12 +414,12 @@ void texto_remove_char(texto_t* txt)
  */
 void texto_insere_char(texto_t* txt, int c)
 {
+	printf("%c\n", c);
 	lista_t* l = lista_nesimo(txt->linhas, txt->lincur);
 	int length = strlen(l->valor) + 2;
 
-	// Reloca a memória para caber o novo caracter.
 	l->valor = (char*) memo_realoca(l->valor, length * sizeof(char));
-	
+
 	l->valor[length - 1] = '\0';
 	l->valor[length - 2] = c;
 }
@@ -418,9 +430,11 @@ void texto_insere_char(texto_t* txt, int c)
  * @param  char
  * @return char
  */
-char texto_corrige_char(char c)
+char texto_corrige_char(int c)
 {
-	return c;
+	const char* r = al_keycode_to_name(c);
+
+	return *r;
 }
 
 /**
@@ -485,7 +499,8 @@ bool texto_processa_comandos(texto_t* txt)
 
 			// Caso nada seja pego insere o char digitado
 			default:
-				texto_insere_char(txt, texto_corrige_char(tecla)); break;
+
+				break;
 		}
 	}
 
@@ -521,6 +536,7 @@ void texto_move_esq(texto_t* txt)
  */
 void texto_move_dir(texto_t* txt)
 {
+	printf("a");
 	if (txt->colcur < strlen(lista_valor(txt->linhas, txt->lincur))) {
 		txt->col1++;
 	} else {
