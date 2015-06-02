@@ -5,20 +5,20 @@
  * TAD que implementa uma fila de elementos do tipo pilha.
  *
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2014, 2015 João V. Lima, UFSM
  *               2005       Benhur Stein, UFSM
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,19 +29,24 @@
  */
 
 #include <stdbool.h>
-
 #include "arv.h"
+#include "memo.h"
 
 /* definicao do tipo pilha
  * a pilha armazena nós da árvore, sendo um operador ou operando.
  */
+typedef struct lista {
+	arv_t * arv;
+    struct lista* prox;
+} lista_t;
+
 typedef struct {
-	/* descreva aqui a estrutura da pilha */
+    lista_t* topo;
 } pilha_t;
 
 /* funções que permitem realizar operações sobre uma pilha */
 /* retorna uma nova pilha, vazia */
-pilha_t *pilha_cria(void);
+pilha_t * pilha_cria(void);
 
 /* destrói a pilha p, que deverá estar vazia. */
 void pilha_destroi(pilha_t* p);
@@ -53,7 +58,7 @@ bool pilha_vazia(pilha_t* p);
 void pilha_insere(pilha_t* p, arv_t* arv);
 
 /* remove e retorna o nó operador/operando no topo da pilha */
-arv_t* pilha_remove(pilha_t p);
+arv_t* pilha_remove(pilha_t* p);
 
 /* retorna true se p for uma pilha válida */
 bool pilha_valida(pilha_t p);

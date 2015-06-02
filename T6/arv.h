@@ -54,10 +54,10 @@ typedef struct _arv {
 arv_t* arv_cria(op_t op);
 
 /* insere um novo dado na árvore a esquerda */
-arv_t* arv_insere_esquerda(arv_t* arv, op_t op);
+arv_t* arv_insere_esquerda(arv_t* arv, arv_t* filho);
 
 /* insere um novo dado na árvore a direita */
-arv_t* arv_insere_direita(arv_t* arv, op_t op);
+arv_t* arv_insere_direita(arv_t* arv, arv_t* filho);
 
 /* imprime a árvore em pré-ordem: raiz, esquerda, e direita */
 void arv_imprime_pre_ordem(arv_t* arv);
