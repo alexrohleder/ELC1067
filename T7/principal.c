@@ -89,14 +89,11 @@ int main(int argc, char **argv)
 
 	printf("Imprimindo a arvore gerada em ordem: ");
 	arv_imprime_em_ordem(arv[current_node - 1]);
-	printf("Resultado: ");
+	printf("\nResultado: ");
 	arv_imprime_resultado(arv[current_node - 1]);
-
 	printf("\n");
 
-	//for (i = 0; i < current_node; i++) {
-	//	arv_destroi(arv[i]);
-	//}
+	arv_destroi(arv[current_node - 1]);
 
 	pilha_destroi(pilha);
 	memo_relatorio();
