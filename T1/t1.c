@@ -49,20 +49,14 @@ void main(int argc, char ** argv) {
 		i++;
 	}
 
-<<<<<<< HEAD
 	fclose(fnotas);
 
 	k = i;
 	i = j = 0;
-
-	for (; i < k; i++) {
-		if (strstr(nomes[i], argv[1]) != NULL) {
-			printf("%.2f %s\n", (notas[i][0] + notas[i][1]) / 2, nomes[i]);
-=======
+	
 	for (j = 0; j < i; j++) {
 		if (strcasestr(nomes[j], argv[1]) != NULL) {
 			printf("%.2f %s\n", (notas[j][0] + notas[j][1]) / 2, nomes[j]);
->>>>>>> d2813f77ad4323bd65651fa9245f1a14073963d5
 		}
 	}
 }
