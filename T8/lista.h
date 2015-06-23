@@ -13,5 +13,6 @@ typedef struct _lista {
 
 lista_t *lista_cria(void);
 lista_t *lista_insere(lista_t *l, vertice_t *v);
+void lista_destroi(lista_t *l);
 
 #endif

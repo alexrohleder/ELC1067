@@ -46,12 +46,12 @@ vertice_t* grafo_busca_vertice(grafo_t* g, char* chave)
 bool grafo_insere_aresta(grafo_t* g, char* v1, char* v2)
 {
 	vertice_t* av1 = grafo_busca_vertice(g, v1);
-    vertice_t* av2 = grafo_busca_vertice(g, v2);
+    	vertice_t* av2 = grafo_busca_vertice(g, v2);
 
-    av1->adjacentes = lista_insere(av1->adjacentes, av2);
-    av2->adjacentes = lista_insere(av2->adjacentes, av1);
+    	av1->adjacentes = lista_insere(av1->adjacentes, av2);
+    	av2->adjacentes = lista_insere(av2->adjacentes, av1);
 
-    return true;
+    	return true;
 }
 
 void grafo_imprime(grafo_t* g)
@@ -61,7 +61,7 @@ void grafo_imprime(grafo_t* g)
 	while (a != NULL) {
 		printf("%s -> ", a->item->chave);
 		
-		while (a->item->adjacentes != NULL) {
+		while (a->item->adjacentes != NULL && a->item->adjacentes->item != NULL) {
 			printf("%s ", a->item->adjacentes->item->chave);
 			a->item->adjacentes = a->item->adjacentes->prox;
 		}
@@ -73,5 +73,6 @@ void grafo_imprime(grafo_t* g)
 
 void grafo_destroi(grafo_t* g)
 {
-
+	
 }
+

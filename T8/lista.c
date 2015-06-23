@@ -31,3 +31,9 @@ lista_t *lista_insere(lista_t *l, vertice_t *v)
 	
 	return l;
 }
+
+void lista_destroi(lista_t *l)
+{
+	
+}
+

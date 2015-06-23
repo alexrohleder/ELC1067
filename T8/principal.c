@@ -42,33 +42,12 @@ void main(void)
 			grafo_insere_aresta(g, str0, str1);
 		}
 
-		printf(" Ok\n");
+		printf("Ok\n");
 		i++;
 	}
 
 	printf("imprimindo o grafo gerado:\n");
 	grafo_imprime(g);
 
-/**
-	lista_t *n = lista_cria();
-
-	char *a1 = "key1", *b1 = "name1";
-	char *a2 = "key2", *b2 = "name2";
-	char *a3 = "key3", *b3 = "name3";
-
-	grafo_t *g = grafo_cria();
-	grafo_insere_vertice(g, vertice_cria(a1, b1));
-	grafo_insere_vertice(g, vertice_cria(a2, b2));
-	printf("a: %s\n", g->vertices->item->chave);
-	printf("a: %s\n", g->vertices->prox->item->chave);
-	grafo_insere_aresta(g, "key1", "key2");
-	printf("b: %s\n", g->vertices->prox->item->adjacentes->item->chave);
-
-	return;
-	n = lista_insere(n, vertice_cria(a1, b1));
-	n = lista_insere(n, vertice_cria(a2, b2));
-	n = lista_insere(n, vertice_cria(a3, b3));
-
-	printf("a: %s\n", n->item->chave);
-	*/
+	
 }

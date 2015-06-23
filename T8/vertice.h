@@ -13,5 +13,6 @@ typedef struct _vertice {
 } vertice_t;
 
 vertice_t *vertice_cria(char *chave, char *nome);
+void vertice_destroi(vertice_t *v);
 
 #endif

@@ -13,3 +13,9 @@ vertice_t *vertice_cria(char *chave, char *nome)
 	n->nome = nome;
 	return n;
 }
+
+void vertice_destroi(vertice_t *v)
+{
+	
+}
+
