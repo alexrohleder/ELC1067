@@ -34,6 +34,13 @@ lista_t *lista_insere(lista_t *l, vertice_t *v)
 
 void lista_destroi(lista_t *l)
 {
-	
+	lista_t *a = l;
+
+	while (a->prox != NULL) {
+		memo_libera(a->prox);
+		a = a->prox;
+	}
+
+	memo_libera(l);
 }
 

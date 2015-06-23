@@ -73,6 +73,7 @@ void grafo_imprime(grafo_t* g)
 
 void grafo_destroi(grafo_t* g)
 {
-	
+	lista_destroi(g->vertices);
+	memo_libera(g);
 }
 

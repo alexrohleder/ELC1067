@@ -49,5 +49,5 @@ void main(void)
 	printf("imprimindo o grafo gerado:\n");
 	grafo_imprime(g);
 
-	
+	memo_relatorio();
 }
