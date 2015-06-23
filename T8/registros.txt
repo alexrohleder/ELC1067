@@ -1,12 +1,12 @@
 8 9
-SMA Santa Maria
-POA Porto Alegre
-SC Santa Cruz
-CH Cidade Hipotetica
-CH1 Outra Cidade
-PF Passo Fundo
-CS Caxias do Sul
-FS Faxinal do Soturno
+SMA SantaMaria
+POA PortoAlegre
+SC SantaCruz
+CH CidadeHipotetica
+CH1 OutraCidade
+PF PassoFundo
+CS CaxiasDoSul
+FS FaxinalDoSoturno
 SMA POA 
 SMA SC 
 POA SC 
