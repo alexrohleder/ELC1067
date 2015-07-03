@@ -45,7 +45,7 @@ void main(void)
 	char *v1 = memo_aloca(sizeof(char) * 5);
 	char *v2 = memo_aloca(sizeof(char) * 5);
 	
-	printf("Selecione os vértices para gerar o menor caminho: ");
+	printf("Selecione os vértices para gerar o menor caminho: (e.g. SMA CH1) ");
 	scanf("%s %s", v1, v2);
 
 	printf("O menor caminho partindo de %s até %s é:\n", v2, v1);
